@@ -1,0 +1,40 @@
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 720px;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  color: var(--color-cyan);
+}
+
+.index {
+  color: var(--color-text-muted);
+}
+
+.title {
+  color: var(--color-text);
+}
+
+/* Líneas enmascaradas por SplitText */
+.title :global(.split-line) {
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+
+.lead {
+  color: var(--color-text-secondary);
+}
+
+/* Línea de acento que se dibuja bajo el título (degradado de marca) */
+.rule {
+  display: block;
+  width: 88px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--gradient-brand-strong);
+}

@@ -1,0 +1,133 @@
+.section {
+  padding-block: var(--section-y);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+  margin-top: var(--space-7);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--space-4);
+  }
+
+  .mediaCell {
+    grid-column: span 6;
+  }
+
+  .cellWide {
+    grid-column: span 6;
+  }
+
+  .cell {
+    grid-column: span 3;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--space-4);
+  }
+
+  .mediaCell {
+    grid-column: span 4;
+    grid-row: span 2;
+  }
+
+  .cell {
+    grid-column: span 4;
+  }
+
+  .cellWide {
+    grid-column: span 8;
+  }
+
+  .cell:nth-of-type(4),
+  .cell:nth-of-type(5) {
+    grid-column: span 6;
+  }
+}
+
+/* Celda de media */
+
+.mediaCell {
+  position: relative;
+  min-height: 240px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-raised);
+}
+
+@media (min-width: 1024px) {
+  .mediaCell {
+    min-height: 100%;
+  }
+}
+
+.chip {
+  position: absolute;
+  left: var(--space-3);
+  bottom: var(--space-3);
+  z-index: 1;
+  padding: var(--space-2) var(--space-3);
+  background: #12132b;
+  border: 1px solid #2a2c5c;
+  border-radius: var(--radius-full);
+}
+
+.chip .eyebrow {
+  color: #f5f6ff;
+  letter-spacing: 0.1em;
+}
+
+/* Celdas de disciplina */
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cell:hover {
+    border-color: var(--color-border-strong);
+    transform: perspective(700px) rotateX(2deg) rotateY(-3deg) translateY(-4px);
+  }
+}
+
+.cellHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--color-electric);
+}
+
+.cellIndex {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  color: var(--color-text-muted);
+}
+
+.cellTitle {
+  font-size: var(--fs-h3);
+  color: var(--color-text);
+}
+
+.cellText {
+  font-size: var(--fs-small);
+  color: var(--color-text-secondary);
+  max-width: 52ch;
+}

@@ -1,0 +1,86 @@
+.section {
+  padding-block: var(--section-y);
+}
+
+.inner {
+  display: flex;
+  justify-content: center;
+}
+
+/* Tarjeta centrada de contraste (la única banda de contraste de la página) */
+.card {
+  position: relative;
+  max-width: 780px;
+  padding: var(--space-8) var(--space-6);
+  background: var(--color-cta-card);
+  border: 1px solid var(--color-cta-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  text-align: center;
+}
+
+/* Acento degradado azul → violeta sobre la tarjeta */
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-brand-strong);
+}
+
+.eyebrow {
+  color: var(--color-cyan-text);
+  margin-bottom: var(--space-4);
+}
+
+.title {
+  color: var(--color-cta-text);
+}
+
+.lead {
+  margin-inline: auto;
+  margin-top: var(--space-5);
+  color: var(--color-cta-secondary);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-7);
+}
+
+.primary,
+.secondary {
+  min-height: 56px;
+  padding: var(--space-4) var(--space-6);
+}
+
+.secondary {
+  color: var(--color-cta-text);
+  --btn-fill: color-mix(in srgb, var(--color-cta-text) 12%, transparent);
+}
+
+.pending {
+  padding: var(--space-4) var(--space-5);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  line-height: 1.6;
+  color: var(--color-cta-secondary);
+  background: color-mix(in srgb, var(--color-cta-text) 6%, transparent);
+  border: 1px solid var(--color-cta-border);
+  border-radius: var(--radius-sm);
+  max-width: 52ch;
+}
+
+@media (min-width: 480px) {
+  .actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

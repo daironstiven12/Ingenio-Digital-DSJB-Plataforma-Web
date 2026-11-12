@@ -1,0 +1,652 @@
+/* =========================================================
+   Ingenio Digital DSJB — Tokens (v2, fase "más impacto")
+   Dos temas como la misma marca. El azul del logo es el ancla;
+   se añade violeta. Únicos degradados de marca: azul→violeta
+   (+cian solo en el botón principal).
+   ========================================================= */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Tokens oficiales v2 (tinta nocturna matiz índigo) */
+  --color-bg: #0a0b1e;
+  --color-surface: #12132b;
+  --color-raised: #1b1c3d;
+  --color-border: #2a2c5c;
+  --color-text: #f5f6ff;
+  --color-text-secondary: #a8abd0;
+  --color-blue: #2f7bff;
+  --color-violet: #7c5cff;
+  --color-cyan: #22d3ee;      /* solo detalles pequeños */
+  --color-warm: #ffb454;      /* acento cálido: estados, un detalle (≤5 % pantalla) */
+
+  /* Derivados (misma familia de marca) */
+  --color-border-strong: #34365f;
+  --color-text-muted: color-mix(in srgb, #a8abd0 68%, transparent);
+  --color-band: var(--color-surface);
+  --color-band-alt: rgba(27, 28, 61, 0.55);
+  --color-indigo-band: #14153a;
+  --color-indigo-text: #f5f6ff;
+  --color-indigo-secondary: #a8abd0;
+  --color-glow-blue: rgba(47, 123, 255, 0.22);
+  --color-glow-violet: rgba(124, 92, 255, 0.2);
+  --color-overlay: rgba(10, 11, 30, 0.66);
+  --color-on-accent: #0a0b1e;
+  --color-electric: #2f7bff;
+  --color-focus: #22d3ee;
+  --color-cyan-text: #22d3ee;
+  --color-warning: #ffb454;
+  --color-success: #22d3ee;
+
+  /* Degradados de marca */
+  --gradient-brand: linear-gradient(120deg, #8fb0ff 0%, #c9b8ff 100%);
+  --gradient-brand-strong: linear-gradient(120deg, #5ea0ff 0%, #8a63ff 100%);
+  --gradient-button: linear-gradient(120deg, #22d3ee 0%, #2f7bff 45%, #8a63ff 100%);
+  --gradient-progress: linear-gradient(90deg, #22d3ee 0%, #2f7bff 45%, #7c5cff 100%);
+
+  --shadow-sm: 0 1px 2px rgba(4, 4, 20, 0.5);
+  --shadow-md: 0 12px 32px rgba(4, 4, 20, 0.55);
+
+  /* Pie (oscuro: capa más profunda; el CTA índigo queda encima de él) */
+  --color-footer-bg: #060714;
+  --color-footer-text: #f5f6ff;
+  --color-footer-secondary: #a8abd0;
+
+  /* Panel móvil */
+  --color-panel-bg: #060714;
+  --color-panel-text: #f5f6ff;
+  --color-panel-border: rgba(245, 246, 255, 0.14);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Tokens oficiales v2 (blanco con tintes lavanda/azul) */
+  --color-bg: #fafaff;
+  --color-surface: #ffffff;
+  --color-raised: #f3f1ff;
+  --color-border: #e0e1f5;
+  --color-text: #14153a;
+  --color-text-secondary: #55587f;
+  --color-blue: #2563eb;
+  --color-violet: #7c3aed;
+  --color-cyan: #0e7490;      /* cian de texto sobre claro */
+  --color-warm: #b45309;
+
+  /* Derivados (misma familia de marca) */
+  --color-border-strong: #c6c7e4;
+  --color-text-muted: color-mix(in srgb, #55587f 72%, transparent);
+  --color-band: #ffffff;
+  --color-band-alt: #f3f1ff;
+  --color-indigo-band: #14153a;
+  --color-indigo-text: #f5f6ff;
+  --color-indigo-secondary: #a8abd0;
+  --color-glow-blue: rgba(37, 99, 235, 0.12);
+  --color-glow-violet: rgba(124, 58, 237, 0.1);
+  --color-overlay: rgba(10, 11, 30, 0.55);
+  --color-on-accent: #ffffff;
+  --color-electric: #2563eb;
+  --color-focus: #4f46e5;
+  --color-cyan-text: #0e7490;
+  --color-warning: #b45309;
+  --color-success: #0e7490;
+
+  /* Degradados de marca */
+  --gradient-brand: linear-gradient(120deg, #2563eb 0%, #7c3aed 100%);
+  --gradient-brand-strong: linear-gradient(120deg, #2563eb 0%, #7c3aed 100%);
+  --gradient-button: linear-gradient(120deg, #2563eb 0%, #7c3aed 100%);
+  --gradient-progress: linear-gradient(90deg, #22d3ee 0%, #2563eb 45%, #7c3aed 100%);
+
+  --shadow-sm: 0 1px 2px rgba(20, 21, 58, 0.08);
+  --shadow-md: 0 12px 32px rgba(20, 21, 58, 0.12);
+
+  /* Pie (claro: bloque luminoso con borde superior) */
+  --color-footer-bg: #ffffff;
+  --color-footer-text: #14153a;
+  --color-footer-secondary: #55587f;
+
+  /* Panel móvil (claro: fondo luminoso) */
+  --color-panel-bg: #ffffff;
+  --color-panel-text: #14153a;
+  --color-panel-border: #e0e1f5;
+}
+
+:root {
+  /* Tipografía */
+  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --fs-display-xl: clamp(2rem, 5vw, 3.5rem);
+  --fs-display-l: clamp(1.75rem, 3.2vw, 2.5rem);
+  --fs-h2: clamp(1.375rem, 2.2vw, 1.75rem);
+  --fs-h3: 1.25rem;
+  --fs-body-lg: clamp(1.0625rem, 1.2vw, 1.125rem);
+  --fs-body: 1.0625rem;
+  --fs-small: 0.875rem;
+  --fs-mono: 0.8125rem;
+  --fs-eyebrow: 0.75rem;
+
+  /* Espaciados (base 4) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+  --space-11: 160px;
+
+  --container-max: 1120px;
+  --container-wide: 1360px;
+  --container-pad: clamp(20px, 5vw, 48px);
+
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  --duration-micro: 140ms;
+  --duration-fast: 220ms;
+  --duration-reveal: 500ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --header-h: 64px;
+  --section-y: clamp(3.5rem, 7vw, 6rem);
+}
+
+/* ===== Base ===== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Evita salto de ancho con scrollbar estable en ambos temas */
+  scrollbar-gutter: stable;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul,
+ol {
+  list-style: none;
+  padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* ===== Transición de tema (Tarea 8) =====
+   Universal con especificidad mínima: cualquier regla de componente
+   sobrescribe propiedades y duraciones propias. */
+
+html:not(.motion-off) {
+  *,
+  *::before,
+  *::after {
+    transition-property: background-color, border-color, color, fill, stroke, outline-color;
+    transition-duration: 220ms;
+    transition-timing-function: ease;
+  }
+}
+
+/* ===== Foco visible ===== */
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--color-blue);
+  color: #ffffff;
+}
+
+[data-theme="dark"] ::selection {
+  background: #2f7bff;
+  color: #f5f6ff;
+}
+
+/* Decisión única de movimiento (clase decidida antes de pintar):
+   motion-off mata animaciones y transiciones; con ?motion=on la clase no está y todo corre. */
+html.motion-off {
+  scroll-behavior: auto;
+}
+
+html.motion-off *,
+html.motion-off *::before,
+html.motion-off *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+/* ===== Revelado progresivo (mejora progresiva) ===== */
+
+html.js .reveal-pending {
+  opacity: 0;
+}
+
+/* ===== Bandas tonales ===== */
+
+.band {
+  background-color: var(--color-band);
+  border-top: 1px solid var(--color-border);
+}
+
+.band-alt {
+  background-color: var(--color-band-alt);
+  border-top: 1px solid var(--color-border);
+}
+
+/* CTA final: banda de contraste (índigo profundo en oscuro, lavanda en claro) */
+:root,
+[data-theme="dark"] {
+  --color-cta-bg: #14153a;
+  --color-cta-card: #1b1c3d;
+  --color-cta-border: #2a2c5c;
+  --color-cta-text: #f5f6ff;
+  --color-cta-secondary: #a8abd0;
+}
+
+[data-theme="light"] {
+  --color-cta-bg: #f3f1ff;
+  --color-cta-card: #ffffff;
+  --color-cta-border: #e0e1f5;
+  --color-cta-text: #14153a;
+  --color-cta-secondary: #55587f;
+}
+
+.band-cta {
+  background-color: var(--color-cta-bg);
+  border-top: 1px solid var(--color-cta-border);
+}
+
+/* ===== Utilidades ===== */
+
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+}
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--space-4);
+  z-index: 100;
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-blue);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+}
+
+.skip-link:focus {
+  top: var(--space-4);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-eyebrow);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.section-title {
+  font-size: var(--fs-display-l);
+  letter-spacing: -0.02em;
+  /* Reserva de alto: el cambio ES↔EN no desplaza el layout */
+  min-height: 2.3em;
+}
+
+.section-lead {
+  font-size: var(--fs-body-lg);
+  max-width: 68ch;
+  color: var(--color-text-secondary);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===== Botones (hover con relleno, flecha que se desplaza) ===== */
+
+.btn-primary,
+.btn-secondary {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  padding: var(--space-3) var(--space-5);
+  font-weight: 600;
+  font-size: var(--fs-body);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.btn-primary::before,
+.btn-secondary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.btn-primary {
+  color: var(--color-on-accent);
+  background: var(--gradient-button);
+}
+
+[data-theme="light"] .btn-primary {
+  color: #ffffff;
+}
+
+.btn-primary::before {
+  background: var(--gradient-brand-strong);
+}
+
+.btn-primary:hover::before,
+.btn-primary:focus-visible::before {
+  opacity: 1;
+}
+
+.btn-secondary {
+  color: var(--color-text);
+  background: transparent;
+  border-color: var(--color-border-strong);
+}
+
+.btn-secondary::before {
+  background: var(--btn-fill, var(--color-raised));
+}
+
+.btn-secondary:hover::before,
+.btn-secondary:focus-visible::before {
+  opacity: 1;
+}
+
+.btn-primary svg,
+.btn-secondary svg {
+  transition: transform var(--duration-micro) var(--ease-out);
+}
+
+.btn-primary:hover svg,
+.btn-primary:focus-visible svg,
+.btn-secondary:hover svg,
+.btn-secondary:focus-visible svg {
+  transform: translateX(4px);
+}
+
+/* ===== Barra de progreso de lectura ===== */
+
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 60;
+  background: var(--gradient-progress);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  pointer-events: none;
+}
+
+html.motion-off .scroll-progress {
+  display: none;
+}
+
+/* ===== Marquee de disciplinas ===== */
+
+.marquee {
+  overflow: hidden;
+  border-block: 1px solid var(--color-border);
+  padding-block: var(--space-3);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  gap: var(--space-7);
+  width: max-content;
+  white-space: nowrap;
+  animation: marquee 42s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.marquee-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gradient-brand-strong);
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+html.motion-off .marquee-track {
+  animation: none;
+  width: auto;
+  flex-wrap: wrap;
+  justify-content: center;
+  row-gap: var(--space-3);
+}
+
+/* Panel que emerge sobre el héroe (border superior redondeado) */
+.panel-next {
+  position: relative;
+  z-index: 1;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  overflow: hidden;
+}
+
+/* ===== Especializaciones: recuadro de vídeo ===== */
+
+.specializations-video {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.specializations-poster,
+.specializations-video-el {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ===== Spotlight que sigue el cursor en tarjetas (puntero fino) ===== */
+
+:root,
+[data-theme="dark"] {
+  --spotlight-tint: rgba(124, 92, 255, 0.16);
+}
+
+[data-theme="light"] {
+  --spotlight-tint: rgba(37, 99, 235, 0.09);
+}
+
+.spotlight {
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    260px circle at var(--mx, 50%) var(--my, 50%),
+    var(--spotlight-tint),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .spotlight:hover::after {
+    opacity: 1;
+  }
+}
+
+html.motion-off .spotlight::after {
+  display: none;
+}
+
+/* ===== Héroe: oscuro = vídeo + velo · claro = lavender con 3D ===== */
+
+:root,
+[data-theme="dark"] {
+  --hero-text: #f5f6ff;
+  --hero-secondary: #a8abd0;
+  --hero-border: rgba(245, 246, 255, 0.14);
+  --hero-solid: #0a0b1e;
+  --hero-veil-solid: #0a0b1e;
+  --hero-veil: rgba(10, 11, 30, 0.66);
+  --hero-veil-soft: rgba(10, 11, 30, 0.35);
+  --hero-glow-blue: rgba(47, 123, 255, 0.22);
+  --hero-glow-violet: rgba(124, 92, 255, 0.2);
+}
+
+[data-theme="light"] {
+  --hero-text: #14153a;
+  --hero-secondary: #55587f;
+  --hero-border: #e0e1f5;
+  --hero-solid: #fafaff;
+  --hero-glow-blue: rgba(37, 99, 235, 0.14);
+  --hero-glow-violet: rgba(124, 58, 237, 0.13);
+}
+
+/* ===== Intro de bienvenida (clase .intro-on) =====
+   El script inline de <head> añade .intro-on cuando corresponde;
+   sin JS o sin la clase, el overlay no existe para el usuario.
+   Failsafe: a los 4 s se oculta pase lo que pase (JS nunca bloquea la página). */
+
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+  clip-path: inset(0 0 0 0);
+}
+
+html.intro-on .intro-overlay {
+  display: flex;
+  animation: introFailsafe 0.01s linear 4s forwards;
+}
+
+@keyframes introFailsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+html.motion-off .intro-overlay {
+  display: none !important;
+}

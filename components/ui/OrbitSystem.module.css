@@ -1,0 +1,291 @@
+.system {
+  position: relative;
+  width: min(66vw, 280px);
+  aspect-ratio: 1 / 1;
+  margin-inline: auto;
+  z-index: 1;
+}
+
+@media (min-width: 1024px) {
+  .system {
+    width: min(100%, 380px);
+  }
+}
+
+/* ===== Variante loader ===== */
+.loaderSvg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.loaderNode {
+  fill: transparent;
+  stroke: var(--color-border-strong);
+  stroke-width: 1.5;
+  transform-origin: center;
+}
+
+/* ===== Anillos (compartido) ===== */
+
+.ringsWrap {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+}
+
+.rings {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ringDashed {
+  transform-origin: 50% 50%;
+  animation: ringRotate 90s linear infinite;
+}
+
+.system:hover .ringDashed,
+.system:focus-within .ringDashed {
+  animation-play-state: paused;
+}
+
+@keyframes ringRotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.emblem {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 36%;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid var(--color-border-strong);
+  background-color: var(--color-indigo-band);
+  box-shadow: var(--shadow-md);
+}
+
+.emblemImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* ===== Nodos interactivos ===== */
+
+.node {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  transform: translate(-50%, -50%);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  animation: nodeIn 0.5s var(--ease-out) both;
+  animation-delay: calc(var(--i) * 70ms + 120ms);
+  transition:
+    background-color 200ms var(--ease-out),
+    border-color 200ms var(--ease-out),
+    color 200ms var(--ease-out);
+}
+
+@media (min-width: 1024px) {
+  .node {
+    width: 46px;
+    height: 46px;
+  }
+}
+
+@keyframes nodeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.55);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Flotación mínima desfasada (sobre .nodeIcon, node conserva entrance) */
+.nodeIcon {
+  animation: nodeFloat 5.2s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.7s);
+}
+
+@keyframes nodeFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Colores por área — tema oscuro (relleno) / claro (variantes AA) */
+
+.node_software {
+  --fill: #2f7bff;
+  --icon: #f5f6ff;
+}
+
+.node_arquitectura {
+  --fill: #7c5cff;
+  --icon: #f5f6ff;
+}
+
+.node_redes {
+  --fill: #22d3ee;
+  --icon: #0a0b1e;
+}
+
+.node_electronica {
+  --fill: #19e3d0;
+  --icon: #0a0b1e;
+}
+
+.node_formacion {
+  --fill: #ffb454;
+  --icon: #0a0b1e;
+}
+
+:global([data-theme="light"]) .node_software {
+  --fill: #2563eb;
+  --icon: #ffffff;
+}
+
+:global([data-theme="light"]) .node_arquitectura {
+  --fill: #7c3aed;
+  --icon: #ffffff;
+}
+
+:global([data-theme="light"]) .node_redes {
+  --fill: #0e7490;
+  --icon: #ffffff;
+}
+
+:global([data-theme="light"]) .node_electronica {
+  --fill: #0f766e;
+  --icon: #ffffff;
+}
+
+:global([data-theme="light"]) .node_formacion {
+  --fill: #b45309;
+  --icon: #ffffff;
+}
+
+.node,
+.loaderNode {
+  color: var(--color-electric);
+}
+
+.node:hover,
+.node:focus-visible,
+.nodeActive {
+  background-color: var(--fill);
+  border-color: var(--fill);
+  color: var(--icon);
+}
+
+/* Relleno del nodo loader al ser "alcanzado" por el dibujo */
+.loaderNode {
+  transition: fill 200ms var(--ease-out);
+}
+
+.loaderSvg .node_software {
+  --fill: #2f7bff;
+}
+
+.loaderSvg .node_arquitectura {
+  --fill: #7c5cff;
+}
+
+.loaderSvg .node_redes {
+  --fill: #22d3ee;
+}
+
+.loaderSvg .node_electronica {
+  --fill: #19e3d0;
+}
+
+.loaderSvg .node_formacion {
+  --fill: #ffb454;
+}
+
+/* Etiqueta del nodo: sólida, legible, ambos temas */
+
+.nodeLabel {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 200px;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: var(--color-text);
+  background: var(--color-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    visibility var(--duration-fast);
+}
+
+.node:hover .nodeLabel,
+.node:focus-visible .nodeLabel,
+.nodeActive .nodeLabel {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Resaltado breve del card de Especializaciones al navegar */
+
+.cardHighlight {
+  animation: cardPulse 1.6s var(--ease-out) 1;
+}
+
+@keyframes cardPulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--color-blue);
+    border-color: var(--color-blue);
+  }
+  35% {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-blue) 55%, transparent);
+    border-color: var(--color-blue);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+html.motion-off .ringDashed,
+html.motion-off .nodeIcon,
+html.motion-off .node {
+  animation: none;
+}
+
+html.motion-off .cardHighlight {
+  animation: none;
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}

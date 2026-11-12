@@ -1,0 +1,177 @@
+.section {
+  padding-block: var(--section-y);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: 1fr;
+  margin-top: var(--space-7);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition:
+    box-shadow var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.cardMedia {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  background: var(--color-surface);
+  overflow: hidden;
+  border-bottom: 1px dashed var(--color-border-strong);
+}
+
+.cardImg {
+  object-fit: cover;
+}
+
+.slotIcon {
+  color: var(--color-text-muted);
+}
+
+.slotText {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.cardBadge {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  flex: 1;
+}
+
+.cardArea {
+  color: var(--color-text-muted);
+}
+
+.cardTitle {
+  font-size: var(--fs-h3);
+  color: var(--color-text);
+}
+
+.cardText {
+  font-size: var(--fs-small);
+  color: var(--color-text-secondary);
+  flex: 1;
+}
+
+.cardLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--color-cyan);
+}
+
+.cardLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cardPending {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.note {
+  margin-top: var(--space-7);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
+  max-width: 68ch;
+  font-size: var(--fs-small);
+  color: var(--color-text-secondary);
+}
+
+.note strong {
+  color: var(--color-text);
+}
+
+.cardLinks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.cardRepo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  font-size: var(--fs-small);
+  color: var(--color-text-secondary);
+  transition: color var(--duration-micro) var(--ease-out);
+}
+
+.cardRepo:hover {
+  color: var(--color-text);
+}
+
+/* Tarjeta DEMO (solo desarrollo) */
+.demoCard {
+  border-style: dashed;
+  border-color: var(--color-warning);
+}
+
+.demoBadge {
+  position: absolute;
+  bottom: var(--space-3);
+  left: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 55%, transparent);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+}

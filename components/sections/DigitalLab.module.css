@@ -1,0 +1,135 @@
+.section {
+  padding-block: var(--section-y);
+}
+
+.headerRow {
+  display: grid;
+  gap: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .headerRow {
+    grid-template-columns: 1.2fr 1fr;
+    gap: var(--space-8);
+    align-items: end;
+  }
+}
+
+.mediaWrap {
+  order: -1;
+}
+
+@media (min-width: 1024px) {
+  .mediaWrap {
+    order: 0;
+  }
+}
+
+.media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-raised);
+}
+
+.mediaInner {
+  position: absolute;
+  inset: 0;
+}
+
+.mediaInner :global(.parallax-img) {
+  object-fit: cover;
+  will-change: transform;
+}
+
+.pillars {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-7);
+}
+
+@media (min-width: 768px) {
+  .pillars {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+  }
+}
+
+.pillar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.pillarIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--color-cyan);
+  background: var(--color-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.pillarTitle {
+  font-size: 1.0625rem;
+  color: var(--color-text);
+}
+
+.pillarText {
+  font-size: var(--fs-small);
+  color: var(--color-text-secondary);
+}
+
+/* Lista de publicaciones (cuando existan) */
+
+.postList {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-7);
+  border-top: 1px solid var(--color-border);
+}
+
+.postRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 56px;
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  transition: color var(--duration-micro) var(--ease-out);
+}
+
+.postRow:hover {
+  color: var(--color-cyan);
+}
+
+.postMeta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  color: var(--color-text-muted);
+}
+
+.postTitle {
+  font-weight: 600;
+}
+
+.pending {
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  color: var(--color-text-muted);
+  max-width: 68ch;
+}
