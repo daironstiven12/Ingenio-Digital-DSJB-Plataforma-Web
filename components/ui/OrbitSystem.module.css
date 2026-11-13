@@ -279,6 +279,7 @@
     border-color: var(--color-blue);
   }
   35% {
+    box-shadow: 0 0 0 4px rgba(47, 123, 255, 0.45); /* @supports fallback previo */
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-blue) 55%, transparent);
     border-color: var(--color-blue);
   }

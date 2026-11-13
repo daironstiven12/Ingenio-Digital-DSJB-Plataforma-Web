@@ -164,7 +164,11 @@
 .cell:hover,
 .cell:focus-visible,
 .cell:focus-within {
+  border-color: var(--color-border-strong); /* @supports fallback previo */
   border-color: color-mix(in srgb, var(--area-tint) 55%, var(--color-border-strong));
+  box-shadow:
+    0 0 0 1px var(--color-border-strong), /* @supports fallback previo */
+    0 14px 44px -14px rgba(4, 4, 20, 0.5); /* @supports fallback previo */
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--area-tint) 35%, transparent),
     0 14px 44px -14px color-mix(in srgb, var(--area-tint) 55%, transparent);

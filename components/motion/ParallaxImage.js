@@ -31,6 +31,8 @@ export default function ParallaxImage({
         const { ScrollTrigger } = await import("gsap/ScrollTrigger");
         if (cancelled) return;
         gsap.registerPlugin(ScrollTrigger);
+        // No restituye estado al cambiar la altura de viewport en móvil (barra dinámica del navegador):
+        ScrollTrigger.config({ ignoreMobileResize: true });
 
         const motion = resolveMotion();
         if (motion.allowed) {

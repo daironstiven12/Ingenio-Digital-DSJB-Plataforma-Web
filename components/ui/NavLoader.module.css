@@ -53,6 +53,7 @@
   width: 360px;
   height: 360px;
   border-radius: 50%;
+  background: radial-gradient(circle, rgba(47, 123, 255, 0.35) 0%, transparent 70%); /* @supports fallback previo */
   background: radial-gradient(
     circle,
     color-mix(in srgb, var(--nav-accent, #2f7bff) 38%, transparent) 0%,

@@ -53,6 +53,7 @@
   font-size: var(--fs-mono);
   line-height: 1.6;
   color: var(--color-cta-secondary);
+  background: rgba(245, 246, 255, 0.06); /* @supports fallback previo */
   background: color-mix(in srgb, var(--color-cta-text) 6%, transparent);
   border: 1px solid var(--color-cta-border);
   border-radius: var(--radius-sm);
@@ -107,6 +108,7 @@
   gap: var(--space-4);
   min-height: 64px;
   padding: var(--space-3) var(--space-4);
+  background: rgba(245, 246, 255, 0.05); /* @supports fallback previo */
   background: color-mix(in srgb, var(--color-cta-text) 5%, transparent);
   border: 1px solid var(--color-cta-border);
   border-radius: var(--radius-md);
@@ -117,6 +119,7 @@
 }
 
 a.channelCard:hover {
+  background: rgba(245, 246, 255, 0.09); /* @supports fallback previo */
   background: color-mix(in srgb, var(--color-cta-text) 9%, transparent);
   border-color: var(--color-cta-text);
 }
@@ -127,6 +130,7 @@ a.channelCard:hover {
   gap: var(--space-4);
   min-height: 64px;
   padding: var(--space-3) var(--space-4);
+  background: rgba(245, 246, 255, 0.05); /* @supports fallback previo */
   background: color-mix(in srgb, var(--color-cta-text) 5%, transparent);
   border: 1px solid var(--color-cta-border);
   border-radius: var(--radius-md);
@@ -218,6 +222,7 @@ a.channelCard:hover {
   padding: var(--space-3) var(--space-4);
   font-size: var(--fs-body);
   color: var(--color-cta-text);
+  background: rgba(245, 246, 255, 0.04); /* @supports fallback previo */
   background: color-mix(in srgb, var(--color-cta-text) 4%, transparent);
   border: 1px solid var(--color-cta-border);
   border-radius: var(--radius-sm);

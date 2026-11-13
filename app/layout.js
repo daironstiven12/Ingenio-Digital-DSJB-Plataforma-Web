@@ -6,6 +6,7 @@ import LanguageProvider from "@/components/i18n/LanguageProvider";
 import ScrollProgress from "@/components/motion/ScrollProgress";
 import OrbitEmblem from "@/components/ui/OrbitEmblem";
 import NavLoader from "@/components/ui/NavLoader";
+import DebugPanel from "@/components/ui/DebugPanel";
 import intro from "@/components/ui/IntroOverlay.module.css";
 import "@/components/ui/OrbitEmblem.css";
 import { resolveLang } from "@/lib/i18n";
@@ -66,16 +67,26 @@ export async function generateMetadata() {
     },
     openGraph: {
       type: "website",
-      locale: lang === "en" ? "en_US" : "es_ES",
+      locale: lang === "en" ? "en_US" : "es_CO",
+      alternateLocale: lang === "en" ? ["es_CO"] : ["en_US"],
       siteName: "Ingenio Digital DSJB",
       title: "Ingenio Digital DSJB",
       description,
       url: "/",
+      images: [
+        {
+          url: "/opengraph-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: "Ingenio Digital DSJB — emblema oficial",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: "Ingenio Digital DSJB",
       description,
+      images: ["/twitter-image.jpg"],
     },
   };
 }
@@ -108,49 +119,42 @@ const themeInit = `(function(){
   var q="";try{q=(window.location&&window.location.search)?window.location.search:"";}catch(e){}
   var mo=null;var mMo=/[?&]motion=(on|off)(?:&|$)/.exec(q);if(mMo)mo=mMo[1];
   try{if(mo){window.sessionStorage.setItem("motion-override",mo);}else{mo=window.sessionStorage.getItem("motion-override");}}catch(e){}
+  if(!mo){try{var mp=window.localStorage.getItem("motion-preference");if(mp==="on"||mp==="off"){mo=mp;}}catch(e){}}
   var allowed=true,reason="system";
-  if(mo==="on"){allowed=true;reason="param";}
-  else if(mo==="off"){allowed=false;reason="param";}
-  else{try{if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){allowed=false;reason="reducedMotion";}}catch(e){}}
+  if(mo==="on"){allowed=true;reason="forced-on";}
+  else if(mo==="off"){allowed=false;reason="forced-off";}
+  else{try{if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){allowed=false;reason="reduced-motion";}}catch(e){}}
   if(!allowed){document.documentElement.classList.add("motion-off");}
   var force=/[?&]intro=1/.test(q),off=/[?&]intro=0/.test(q),seen=false;
   try{var raw=window.localStorage.getItem("ingenio-intro");if(raw){try{var d=JSON.parse(raw);if(d&&typeof d.t==="number"&&(Date.now()-d.t)<2592000000){seen=true;}}catch(e){}}}catch(e){}
   var decision="skip",decReason=reason;
   if(off){decision="skip";decReason="param";}
   else if(force){decision="show";decReason="param";}
-  else if(!allowed&&!force){decision="skip";decReason=reason;}; if(force){allowed=true;reason="param";document.documentElement.classList.remove("motion-off");}
+  else if(!allowed&&force){allowed=true;reason="param";document.documentElement.classList.remove("motion-off");decision="show";decReason="param";}
+  else if(!allowed){decision="skip";decReason=reason;}
   else if(seen){decision="skip";decReason="seen";}
   else{decision="show";decReason="fresh";}
-  if(decision==="show"){document.documentElement.classList.add("intro-on");}
+  if(decision==="show"){document.documentElement.classList.add("intro-on");try{document.documentElement.classList.add("scroll-locked");}catch(e){}}
+  /* IMPORTANTE: los failsafes NO tocan atributos de los overlays React.
+     Las clases en <html> sobran: los overlays vuelven a display:none sin
+     .intro-on/.nav-loading (indicado por intro/nav-loader como es SSR). */
+  var bail=function(){try{
+    window.__scrollUnlockAll&&window.__scrollUnlockAll();
+    var d=document.documentElement;
+    d.classList.remove("intro-on","nav-loading","scroll-locked");
+    d.classList.add("intro-done");
+  }catch(e){}};
+  var unlockStuck=function(){try{
+    window.__scrollUnlockAll&&window.__scrollUnlockAll();
+    var d=document.documentElement;
+    d.classList.remove("nav-loading","scroll-locked");
+  }catch(e){}};
+  setTimeout(bail,4500);
+  window.addEventListener("pageshow",unlockStuck);   /* nav-loading + scroll-locked, nunca intro-on (pageshow dispara también en carga inicial) */
+  document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")bail();});
   window.__motion={allowed:allowed,reason:reason};
   ${devLog}
   document.documentElement.classList.add("js");
-})();`;
-
-// Script de cierre del intro (unas pocas líneas): quita la clase pre-pintada,
-// restaura el scroll y marca la visita SOLO al terminar/saltar. Si el overlay
-// desaparece por el failsafe CSS, no se marca (la intro pudo no verse).
-const introExitScript = `(function(){
-  var root=document.documentElement;
-  function end(seen){
-    if(!root.classList.contains("intro-on"))return;
-    if(root.classList.contains("intro-done"))return;
-    root.classList.add("intro-done");
-    root.classList.remove("intro-on");
-    try{if(seen){window.localStorage.setItem("ingenio-intro",JSON.stringify({t:Date.now()}));}}catch(e){}
-    var m=document.getElementById("contenido");
-    if(m){try{m.focus({preventScroll:true});}catch(e){}}
-  }
-  var skip=document.querySelector("[data-intro-skip]");
-  if(skip){skip.addEventListener("click",function(){end(true);});}
-  document.addEventListener("keydown",function(e){if(e.key==="Escape"){end(true);}});
-  var overlay=document.getElementById("intro");
-  if(!overlay){end(false);return;}
-  overlay.addEventListener("animationend",function(e){
-    if(e.target!==overlay)return;
-    if(e.animationName==="introExit"){end(true);}
-    else if(e.animationName==="introFailsafe"){end(false);}
-  });
 })();`;
 
 // Datos estructurados mínimos: sin URLs, `sameAs` ni datos de contacto sin confirmar.
@@ -170,6 +174,32 @@ const organizationJsonLd = {
   ],
 };
 
+// Script de cierre del intro: quita la clase pre-pintada, restaura el
+// scroll, marca la visita solo al terminar/saltar. Failsafe ~3.2 s.
+const introExitScript = `(function(){
+  var root=document.documentElement;
+  function end(seen){
+    if(!root.classList.contains("intro-on"))return;
+    if(root.classList.contains("intro-done"))return;
+    root.classList.add("intro-done");
+    root.classList.remove("intro-on");
+    try{document.documentElement.classList.remove("scroll-locked");}catch(e){}
+    try{if(seen){window.localStorage.setItem("ingenio-intro",JSON.stringify({t:Date.now()}));}}catch(e){}
+    var m=document.getElementById("contenido");
+    if(m){try{m.focus({preventScroll:true});}catch(e){}}
+  }
+  var skip=document.querySelector("[data-intro-skip]");
+  if(skip){skip.addEventListener("click",function(){end(true);});}
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"){end(true);}});
+  var overlay=document.getElementById("intro");
+  if(!overlay){end(false);return;}
+  overlay.addEventListener("animationend",function(e){
+    if(e.target!==overlay)return;
+    if(e.animationName==="introExit"){end(true);}
+    else if(e.animationName==="introFailsafe"){end(false);}
+  });
+})();`;
+
 export default async function RootLayout({ children }) {
   const lang = await resolveLang();
   const dict = dicts[lang];
@@ -185,6 +215,10 @@ export default async function RootLayout({ children }) {
         <Script id="theme-init" strategy="beforeInteractive">
           {themeInit}
         </Script>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
       </head>
       <body>
         {/* Filtro "electric" único para las tarjetas (solo en viewport mediante .live) */}
@@ -214,21 +248,19 @@ export default async function RootLayout({ children }) {
         {/* Loader global para salidas externas (LoadingLink). Servidor-rendered,
             CSS-first; el anillo de progreso manda el cierre (animationend). */}
         <NavLoader dict={dict} />
-        <Script id="intro-exit" strategy="beforeInteractive">
-          {introExitScript}
-        </Script>
-        <LanguageProvider initialLang={lang}>
-          <ScrollProgress />
-          <a href="#contenido" className="skip-link">
-            {dict.skipLink}
-          </a>
-          <Header />
-          <main id="contenido" tabIndex={-1}>{children}</main>
-          <Footer />
-        </LanguageProvider>
-        <Script id="organization-jsonld" type="application/ld+json" strategy="beforeInteractive">
-          {JSON.stringify(organizationJsonLd)}
-        </Script>
+        <script id="intro-exit" dangerouslySetInnerHTML={{ __html: introExitScript }} />
+        <div className="page-shell">
+          <LanguageProvider initialLang={lang}>
+            <ScrollProgress />
+            <a href="#contenido" className="skip-link">
+              {dict.skipLink}
+            </a>
+            <Header />
+            <main id="contenido" tabIndex={-1}>{children}</main>
+            <Footer />
+            <DebugPanel />
+          </LanguageProvider>
+        </div>
       </body>
     </html>
   );

@@ -31,6 +31,8 @@ export default function SectionHeading({ index, kicker, title, lead, id, align =
         }
         if (cancelled) return;
         gsap.registerPlugin(SplitText, ScrollTrigger);
+        // No restituye estado al cambiar la altura de viewport en móvil (barra dinámica del navegador):
+        ScrollTrigger.config({ ignoreMobileResize: true });
 
         const motion = resolveMotion();
         if (motion.allowed) {

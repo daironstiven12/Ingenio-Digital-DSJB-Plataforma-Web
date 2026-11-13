@@ -289,7 +289,9 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--color-warning);
+  background: rgba(255, 180, 84, 0.14); /* @supports fallback previo */
   background: color-mix(in srgb, var(--color-warning) 14%, transparent);
+  border: 1px solid rgba(255, 180, 84, 0.55); /* @supports fallback previo */
   border: 1px solid color-mix(in srgb, var(--color-warning) 55%, transparent);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-full);

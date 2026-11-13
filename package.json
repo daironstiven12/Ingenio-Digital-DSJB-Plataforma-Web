@@ -19,5 +19,13 @@
   "devDependencies": {
     "eslint": "^9",
     "eslint-config-next": "16.4.6"
-  }
+  },
+  "browserslist": [
+    "defaults",
+    "Firefox ESR",
+    "last 2 versions",
+    "iOS >= 15",
+    "Safari >= 15",
+    "Chrome >= 100"
+  ]
 }

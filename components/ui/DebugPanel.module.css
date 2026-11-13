@@ -1,0 +1,54 @@
+/* Panel de depuración — pointer-events: none para no interceptar el scroll */
+
+.panel {
+  position: fixed;
+  left: 8px;
+  bottom: 8px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: min(92vw, 420px);
+  max-height: 46vh;
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.45;
+  color: #22d3ee;
+  background: rgba(6, 7, 20, 0.92);
+  border: 1px solid rgba(34, 211, 238, 0.4);
+  border-radius: 8px;
+  pointer-events: none;
+  overflow: hidden;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+}
+
+.pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  pointer-events: none;
+  user-select: text;
+}
+
+.copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  min-height: 24px;
+  padding: 2px 8px;
+  font: inherit;
+  color: #0a0b1e;
+  background: #22d3ee;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.copy:hover {
+  background: #67e8f9;
+}

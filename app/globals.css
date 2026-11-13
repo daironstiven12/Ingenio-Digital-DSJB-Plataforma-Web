@@ -23,7 +23,7 @@
 
   /* Derivados (misma familia de marca) */
   --color-border-strong: #34365f;
-  --color-text-muted: color-mix(in srgb, #a8abd0 68%, transparent);
+  --color-text-muted: rgba(168, 171, 208, 0.68);
   --color-band: var(--color-surface);
   --color-band-alt: rgba(27, 28, 61, 0.55);
   --color-indigo-band: #14153a;
@@ -78,7 +78,7 @@
 
   /* Derivados (misma familia de marca) */
   --color-border-strong: #c6c7e4;
-  --color-text-muted: color-mix(in srgb, #55587f 72%, transparent);
+  --color-text-muted: rgba(85, 88, 127, 0.72);
   --color-band: #ffffff;
   --color-band-alt: #f3f1ff;
   --color-indigo-band: #14153a;
@@ -179,9 +179,14 @@
 }
 
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: 84px;
   -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 body {
@@ -660,39 +665,32 @@ html.motion-off .spotlight::after {
   --hero-glow-violet: rgba(124, 58, 237, 0.13);
 }
 
-/* ===== Intro de bienvenida (clase .intro-on) =====
-   El script inline de <head> añade .intro-on cuando corresponde;
-   sin JS o sin la clase, el overlay no existe para el usuario.
-   Failsafe: a los 4 s se oculta pase lo que pase (JS nunca bloquea la página). */
-
-.intro-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-bg);
-  clip-path: inset(0 0 0 0);
+/* ===== Bloqueo único de scroll =====
+   La única clase que congela la ventana es html.scroll-locked (overflow: hidden
+   sobre <html>, nunca sobre <body>). La gestiona lib/scrollLock.js (contador de
+   referencias de intro/nav/menú/palette) con desbloqueo garantizado y failsafe
+   inline en <head>. */
+html.scroll-locked {
+  overflow: hidden;
 }
 
-html.intro-on .intro-overlay {
-  display: flex;
-  animation: introFailsafe 0.01s linear 4s forwards;
+/* ===== Wrapper de la página: recorta overflow horizontal =====
+   clip con fallback para Safari antiguo (no recorta al viewport). NUNCA en html+body a la vez. */
+.page-shell {
+  overflow-x: clip;
 }
 
-@keyframes introFailsafe {
-  to {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
+@supports not (overflow: clip) {
+  .page-shell {
+    overflow-x: hidden;
   }
 }
 
-html.motion-off .intro-overlay {
-  display: none !important;
-}
-
-html.nav-loading body {
-  overflow: hidden;
+/* ===== Vídeos decorativos y fondos grandes: nunca atrapan gestos =====
+   pointer-events: none + touch-action pan-y → el scroll pasa siempre al documento. */
+.hero-media,
+.specializations-poster,
+.specializations-video-el {
+  pointer-events: none;
+  touch-action: pan-y;
 }

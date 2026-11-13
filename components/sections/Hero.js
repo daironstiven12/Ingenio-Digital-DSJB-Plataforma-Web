@@ -59,6 +59,8 @@ export default function Hero() {
         const { ScrollTrigger } = await import("gsap/ScrollTrigger");
         if (cancelled) return;
         gsap.registerPlugin(ScrollTrigger);
+        // No restituye estado al cambiar la altura de viewport en móvil (barra dinámica del navegador):
+        ScrollTrigger.config({ ignoreMobileResize: true });
 
         ctx = gsap.context(() => {
           // El vídeo sube más lento que el contenido y se atenúa (scrub)

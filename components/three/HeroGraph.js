@@ -381,6 +381,8 @@ export default function HeroGraph() {
           const { gsap } = await import("gsap");
           const { ScrollTrigger } = await import("gsap/ScrollTrigger");
           gsap.registerPlugin(ScrollTrigger);
+        // No restituye estado al cambiar la altura de viewport en móvil (barra dinámica del navegador):
+        ScrollTrigger.config({ ignoreMobileResize: true });
           const hero = document.getElementById("inicio");
           if (!hero || disposed) return;
           const fade = { v: 1 };

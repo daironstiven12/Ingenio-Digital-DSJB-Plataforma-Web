@@ -1,14 +1,28 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
-import { Menu, X, ArrowRight, Sun, Moon } from "lucide-react";
+import { Menu, X, ArrowRight, Sun, Moon, Search } from "lucide-react";
 import { site } from "@/data/site";
+import { readTheme, toggleTheme } from "@/lib/theme";
+import { lockScroll, unlockScroll } from "@/lib/scrollLock";
+import {
+  shouldShowMotionNotice,
+  dismissMotionNotice,
+  setMotionPreference,
+} from "@/lib/motion";
+import dynamic from "next/dynamic";
 import { useT } from "@/components/i18n/LanguageProvider";
+import MotionSwitch from "@/components/ui/MotionSwitch";
 import styles from "./Header.module.css";
 
-// Tema aplicado por el script inline de layout.js; useSyncExternalStore lo lee
-// del atributo data-theme sin efectos en cascada.
+const CommandPalette = dynamic(() => import("@/components/ui/CommandPalette"), {
+  ssr: false,
+});
+
+// Tema: SSR-neutral "dark" (getServerSnapshot). Cliente lee data-theme
+// (aplicado por el script inline antes del primer pintado); MutationObserver
+// notifica cambios post-montaje. Sin efectos en cascada.
 function subscribeTheme(callback) {
   const observer = new MutationObserver(callback);
   observer.observe(document.documentElement, {
@@ -49,30 +63,91 @@ function ThemeButton({ theme, onToggle, label }) {
       onClick={onToggle}
       aria-label={label}
       aria-pressed={isLight}
+      title={label}
     >
       {isLight ? (
-        <Sun size={19} aria-hidden="true" />
+        <Sun size={18} aria-hidden="true" />
       ) : (
-        <Moon size={19} aria-hidden="true" />
+        <Moon size={18} aria-hidden="true" />
       )}
     </button>
   );
 }
 
-// Barra de ancho completo, camuflada con el héroe: transparente arriba,
-// fondo sólido + borde inferior al hacer scroll. Menú móvil a pantalla
-// completa con ES|EN + tema + CTA. Scroll-spy con aria-current.
+// Solo icono (sin pista visible). El atajo va en aria-keyshortcuts y title.
+function PaletteButton({ label }) {
+  const open = () => {
+    window.dispatchEvent(new CustomEvent("ingenio:palette-open"));
+  };
+  return (
+    <button
+      type="button"
+      className={styles.iconButton}
+      onClick={open}
+      aria-label={label}
+      title={`${label} — Ctrl K`}
+      aria-keyshortcuts="Control+K Meta+K"
+    >
+      <Search size={18} aria-hidden="true" />
+    </button>
+  );
+}
+
+// Aviso UNA vez: la preferencia del sistema pide reducir movimiento
+// y el usuario aún no eligió. No vuelve a salir tras el botón.
+const subscribeNoop = () => () => {};
+const getMotionNoticeSnapshot = () => shouldShowMotionNotice();
+const getServerMotionNoticeSnapshot = () => false;
+
+function MotionNotice({ t }) {
+  const [dismissed, setDismissed] = useState(false);
+  const visible = useSyncExternalStore(
+    subscribeNoop,
+    getMotionNoticeSnapshot,
+    getServerMotionNoticeSnapshot,
+  );
+  if (!visible || dismissed) return null;
+  return (
+    <div className={styles.motionNotice} role="status" aria-live="polite">
+      <p className={styles.motionNoticeText}>{t("motion.notice")}</p>
+      <div className={styles.motionNoticeActions}>
+        <button
+          type="button"
+          className={styles.motionNoticeCta}
+          onClick={() => setMotionPreference("on")}
+        >
+          {t("motion.noticeCta")}
+        </button>
+        <button
+          type="button"
+          className={styles.motionNoticeDismiss}
+          onClick={() => {
+            dismissMotionNotice();
+            setDismissed(true);
+          }}
+        >
+          {t("motion.noticeDismiss")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Header() {
   const { t, lang, setLang } = useT();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [active, setActive] = useState("inicio");
+  const [active, setActive] = useState(null);
   const theme = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getServerThemeSnapshot);
   const toggleRef = useRef(null);
   const panelRef = useRef(null);
   const headerRef = useRef(null);
 
   const navItems = t("nav.items");
+  const navList = useMemo(
+    () => (Array.isArray(navItems) ? navItems : []),
+    [navItems],
+  );
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -81,11 +156,11 @@ export default function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Scroll-spy: marca la sección visible como aria-current.
+  // Scroll-spy: marca aria-current la sección más visible.
   useEffect(() => {
-    const ids = Array.isArray(navItems)
-      ? navItems.map((item) => item.href.replace("#", ""))
-      : [];
+    const ids = navList
+      .map((item) => item.href.replace("#", ""))
+      .filter((id) => id && id !== "inicio" && id !== "contacto");
     const sections = ids
       .map((id) => document.getElementById(id))
       .filter(Boolean);
@@ -108,13 +183,13 @@ export default function Header() {
             best = id;
           }
         }
-        if (best) setActive(best);
+        setActive(best); // null: cuando nada está suficientemente visible (tope)
       },
       { rootMargin: "-30% 0px -55% 0px", threshold: [0, 0.15, 0.4, 0.75, 1] },
     );
     sections.forEach((section) => observer.observe(section));
     return () => observer.disconnect();
-  }, [navItems]);
+  }, [navList]);
 
   const closePanel = useCallback(() => {
     setOpen(false);
@@ -124,8 +199,7 @@ export default function Header() {
   useEffect(() => {
     if (!open) return undefined;
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    lockScroll("menu");
 
     const firstLink = panelRef.current?.querySelector("a");
     firstLink?.focus();
@@ -153,7 +227,6 @@ export default function Header() {
       }
     };
 
-    // Clic fuera del menú cierra
     const onPointerDown = (event) => {
       if (headerRef.current && !headerRef.current.contains(event.target)) {
         setOpen(false);
@@ -164,29 +237,38 @@ export default function Header() {
     document.addEventListener("pointerdown", onPointerDown);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      unlockScroll("menu");
       document.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("pointerdown", onPointerDown);
     };
   }, [open, closePanel]);
 
-  const toggleTheme = () => {
-    const next = theme === "light" ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", next);
-    try {
-      window.localStorage.setItem("theme", next);
-    } catch {
-      // localStorage no disponible: el tema solo dura la sesión.
-    }
-  };
+  // Hash o retorno a escritorio (>=1240px): cerrar + liberar
+  useEffect(() => {
+    if (!open) return undefined;
+    const onHashChange = () => closePanel();
+    const desktopQuery = window.matchMedia("(min-width: 1240px)");
+    const onBreakpoint = (event) => {
+      if (event.matches) closePanel();
+    };
+    window.addEventListener("hashchange", onHashChange);
+    desktopQuery.addEventListener("change", onBreakpoint);
+    return () => {
+      window.removeEventListener("hashchange", onHashChange);
+      desktopQuery.removeEventListener("change", onBreakpoint);
+    };
+  }, [open, closePanel]);
 
   const isLight = theme === "light";
-  const navList = Array.isArray(navItems) ? navItems : [];
-  const desktopItems = navList.filter((item) => item.href !== "#contacto");
+  // Escritorio: sin Inicio (logo) ni Contacto (va en las acciones)
+  const desktopItems = navList.filter(
+    (item) => item.href !== "#contacto" && item.href !== "#inicio",
+  );
 
   return (
     <header ref={headerRef} className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
-      <div className={`container ${styles.inner}`}>
+      <CommandPalette />
+      <div className={styles.inner}>
         <a href="#inicio" className={styles.brand} aria-label={t("nav.homeLabel")}>
           <Image
             src={site.logo ?? "/logo.jpeg"}
@@ -200,13 +282,18 @@ export default function Header() {
           <span className={styles.brandName}>Ingenio&nbsp;Digital</span>
         </a>
 
-        {/* Escritorio: enlaces centrados, controles a la derecha */}
+        {/* Escritorio: enlaces centrados */}
         <nav className={styles.nav} aria-label={t("nav.mainLabel")}>
           <ul className={styles.navList}>
             {desktopItems.map((item) => {
               const id = item.href.replace("#", "");
               const isActive = active === id;
-              const label = id === "laboratorio" ? t("nav.labShort") : item.label;
+              const label =
+                id === "laboratorio"
+                  ? t("nav.labShort")
+                  : id === "equipo"
+                    ? t("nav.teamShort")
+                    : item.label;
               return (
                 <li key={item.href}>
                   <a
@@ -222,7 +309,9 @@ export default function Header() {
           </ul>
         </nav>
 
+        {/* Acciones (escritorio): buscar · ES|EN · tema · contacto */}
         <div className={styles.actionsDesktop}>
+          <PaletteButton label={t("nav.search")} />
           <LangToggle lang={lang} setLang={setLang} groupLabel={t("lang.groupLabel")} />
           <ThemeButton
             theme={theme}
@@ -238,7 +327,7 @@ export default function Header() {
           </a>
         </div>
 
-        {/* Móvil / tablet: tema + hamburguesa */}
+        {/* Móvil / tablet (<1240px): tema + hamburguesa */}
         <div className={styles.actionsMobile}>
           <ThemeButton
             theme={theme}
@@ -263,7 +352,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Panel desplegable (móvil): enlaces, fila controles, CTA ancho completo */}
+      {/* Panel móvil: enlaces (con Inicio), buscar, ES|EN, animaciones, CTA */}
       <div
         id="menu-movil"
         ref={panelRef}
@@ -293,12 +382,9 @@ export default function Header() {
         </nav>
 
         <div className={styles.panelControls}>
+          <PaletteButton label={t("nav.search")} />
           <LangToggle lang={lang} setLang={setLang} groupLabel={t("lang.groupLabel")} />
-          <ThemeButton
-            theme={theme}
-            onToggle={toggleTheme}
-            label={isLight ? t("theme.toDark") : t("theme.toLight")}
-          />
+          <MotionSwitch className={styles.panelSwitch} />
         </div>
 
         <a
@@ -312,6 +398,7 @@ export default function Header() {
           <ArrowRight size={18} aria-hidden="true" />
         </a>
       </div>
+      <MotionNotice t={t} />
     </header>
   );
 }

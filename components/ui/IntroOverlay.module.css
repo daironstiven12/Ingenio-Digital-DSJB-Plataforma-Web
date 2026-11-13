@@ -24,10 +24,8 @@
     introFailsafe 0.01s linear 4s forwards;
 }
 
-/* Bloquea el scroll mientras dura */
-:global(html.intro-on body) {
-  overflow: hidden;
-}
+/* El scroll lo congela html.scroll-locked (lib/scrollLock.js); sin JS el
+   failsafe inline de <head> libera la clase a los 4.5 s o en pageshow/visibilitychange. */
 
 @keyframes introExit {
   from {
