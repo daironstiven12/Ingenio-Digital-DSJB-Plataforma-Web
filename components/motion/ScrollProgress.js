@@ -5,7 +5,7 @@ import { resolveMotion } from "@/lib/motion";
 
 // Barra de progreso de lectura fina (2 px) con el degradado de marca.
 // Basada en scaleX + ScrollTrigger con scrub; estática con reduced-motion
-// (globals.css la oculta en ese caso).
+// (globals.css la oculta en ese caso). Visible solo con scrollY >= 8 px.
 export default function ScrollProgress() {
   const ref = useRef(null);
 
@@ -19,6 +19,13 @@ export default function ScrollProgress() {
 
     let ctx;
     let cancelled = false;
+
+    // Puntero al listener, registrado antes de su primer uso y disponible en el cleanup
+    const applyOpacity = () => {
+      node.style.opacity = window.scrollY >= 8 ? "0.7" : "0";
+    };
+    applyOpacity();
+    window.addEventListener("scroll", applyOpacity, { passive: true });
 
     (async () => {
       try {
@@ -50,6 +57,7 @@ export default function ScrollProgress() {
 
     return () => {
       cancelled = true;
+      window.removeEventListener("scroll", applyOpacity);
       if (ctx) ctx.revert();
     };
   }, []);

@@ -5,6 +5,9 @@ export const en = {
     roleCreator: "Creator of Ingenio Digital",
     linkedinAria: "{name} on LinkedIn",
     githubAria: "{name} on GitHub",
+    siteAria: "{name}'s website",
+    photoAlt: "Portrait of {name}",
+    emailAria: "Email {name}",
   },
   brandDesc:
     "Multidisciplinary technology organization: systems engineering, software development, technology architecture, networks, electronics and educational innovation.",
@@ -104,6 +107,39 @@ export const en = {
     projects: {
       kicker: "Portfolio",
       title: "Featured projects",
+      live: "Live",
+      view: "View project",
+      imageAlt: "Preview of {name}",
+      items: {
+        "asistencias-utch": {
+          name: "Registro de Asistencia UTCH",
+          description:
+            "Class attendance tracking with access for students, teachers and guardians.",
+        },
+        "suenos-de-papiro": {
+          name: "Sueños de Papiro · Dedicación Eterna",
+          description:
+            "Custom products web store (planners, gifts and candles), with a catalog and orders via WhatsApp.",
+        },
+        "panaderia-la-reina": {
+          name: "Panadería La Reina · POS",
+          description:
+            "Billing system and point of sale for a bakery in Quibdó.",
+        },
+        "binova-ia": {
+          name: "BINOVA IA",
+          description:
+            "AI-powered smart containers for waste sorting, with app, traceability and monitoring.",
+        },
+      },
+      stateGuideKicker: "How we publish",
+      stateGuideTitle: "Three honest states",
+      stateDev: "In development",
+      stateDevText: "In build. No invented dates, figures or client names until it is properly documented.",
+      stateDesign: "In design",
+      stateDesignText: "Designed and validated, not built yet. Published only when there is something verifiable.",
+      statePublished: "Published",
+      statePublishedText: "Complete, verifiable case: context, decisions, outcome and links.",
       leadEmpty:
         "Every project will be published with verifiable description, images and status. This is the portfolio structure.",
       leadFilled:
@@ -189,7 +225,6 @@ export const en = {
       areaFallback: "Area in preparation",
       slotLabel: "Slot",
       note: "We don't publish unconfirmed profiles. Once the team is ready, each card will include portrait, name, role and area.",
-      memberPhotoAlt: "Portrait of",
     },
     finalCta: {
       eyebrow: "Contact",
@@ -199,13 +234,31 @@ export const en = {
         "Contact channel being configured. Official details will be published here once confirmed.",
       emailCta: "Email Ingenio Digital DSJB",
       projectsCta: "View projects",
+      microcopy: "Your app will open; we store nothing.",
+      nameLabel: "Name (optional)",
+      messageLabel: "Message",
+      messagePlaceholder: "Tell us what you need…",
+      sendWhatsApp: "Send via WhatsApp",
+      sendEmail: "Send via email",
+      copyEmail: "Copy email",
+      copied: "Copied to clipboard",
+      subject: "Contact from the website",
+      channelsTitle: "Channels",
+      channelWhatsapp: "WhatsApp",
+      channelEmail: "Email",
+      channelSocial: "Social",
+      whatsappPending: "WhatsApp being configured.",
+      emailPending: "Email being configured.",
+      socialPending: "Social being configured.",
     },
   },
   loading: {
     label: "Loading Ingenio Digital DSJB",
     welcome: "Welcome to Ingenio Digital",
+    welcomeEn: "Welcome to Ingenio Digital",
     skip: "Skip",
     opening: "Opening project…",
+    openingProject: "Opening {name}…",
   },
   footer: {
     sections: "Sections",

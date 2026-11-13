@@ -1,0 +1,137 @@
+/* ============================================================
+   OrbitEmblem — emblem orbital compartido (intro + Loader #nav-loader).
+   CSS GLOBAL (no CSS Modules) para que los nombres de clase sean
+   predecibles: OrbitEmblem.js emite clases planas sin hash y estas
+   reglas son las que les dan estilo. Sin este archivo, el SVG cae a
+   rellenos por defecto de SVG (negro) y no se ve nada.
+   Geometría: viewBox 0 0 240 240, centro (120,120).
+   ============================================================ */
+
+.orbitEmblem {
+  display: block;
+  overflow: visible;
+  width: 100%;
+  height: auto;
+}
+
+/* Emblema central: disco + imagen entran con pop */
+.orbitEmblemDisc,
+.orbitEmblemImg {
+  opacity: 0;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: emblemPop 0.5s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)) 0.15s both;
+}
+
+@keyframes emblemPop {
+  from {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Anillo exterior punteado */
+.orbitRing {
+  stroke: var(--color-blue, #2f7bff);
+  stroke-opacity: 0.65;
+  stroke-width: 2;
+  fill: none;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: drawStroke 0.9s ease 0.35s both;
+}
+
+/* Círculo interior */
+.orbitInner {
+  stroke: var(--color-violet, #7c5cff);
+  stroke-opacity: 0.6;
+  stroke-width: 1.5;
+  fill: none;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: drawStroke 0.8s ease 0.5s both;
+}
+
+/* Los dos elementos "dibujados" (anillo + círculo interior) reutilizan
+   el mismo keyframe stroke-dashoffset */
+.orbitDraw {
+  fill: none;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: drawStroke 0.9s ease 0.35s both;
+}
+
+.orbitDrawSlow {
+  animation-duration: 0.8s;
+  animation-delay: 0.5s;
+}
+
+@keyframes drawStroke {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Spokes: 8 líneas desde el centro a cada nodo, en cascada */
+.orbitSpoke {
+  stroke: var(--color-border-strong, #34365f);
+  stroke-width: 1.5;
+  stroke-opacity: 0.9;
+  fill: none;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+
+.orbitSpoke-0 { animation: drawStroke 0.45s ease 0.55s both; }
+.orbitSpoke-1 { animation: drawStroke 0.45s ease 0.6s both; }
+.orbitSpoke-2 { animation: drawStroke 0.45s ease 0.65s both; }
+.orbitSpoke-3 { animation: drawStroke 0.45s ease 0.7s both; }
+.orbitSpoke-4 { animation: drawStroke 0.45s ease 0.75s both; }
+.orbitSpoke-5 { animation: drawStroke 0.45s ease 0.8s both; }
+.orbitSpoke-6 { animation: drawStroke 0.45s ease 0.85s both; }
+.orbitSpoke-7 { animation: drawStroke 0.45s ease 0.9s both; }
+
+/* Nodos: círculos que se rellenan en cascada (escala + fill) */
+.orbitNode {
+  fill: transparent;
+  stroke: var(--color-border-strong, #34365f);
+  stroke-width: 1.5;
+  opacity: 0;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: nodeFill 0.4s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+.orbitNode-0 { animation-delay: 0.95s; }
+.orbitNode-1 { animation-delay: 1.03s; }
+.orbitNode-2 { animation-delay: 1.11s; }
+.orbitNode-3 { animation-delay: 1.19s; }
+.orbitNode-4 { animation-delay: 1.27s; }
+.orbitNode-5 { animation-delay: 1.35s; }
+.orbitNode-6 { animation-delay: 1.43s; }
+.orbitNode-7 { animation-delay: 1.51s; }
+
+@keyframes nodeFill {
+  from {
+    opacity: 0;
+    transform: scale(0.35);
+    fill: transparent;
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    fill: var(--n-fill);
+    stroke: transparent;
+  }
+}
+
+/* Colores por área (idénticos a Especializaciones y al orbital del hero) */
+.n-sw { --n-fill: #2f7bff; }
+.n-arq { --n-fill: #7c5cff; }
+.n-redes { --n-fill: #22d3ee; }
+.n-ele { --n-fill: #19e3d0; }
+.n-for { --n-fill: #ffb454; }

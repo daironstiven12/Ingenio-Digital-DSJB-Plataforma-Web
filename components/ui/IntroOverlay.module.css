@@ -1,0 +1,125 @@
+/* Intro CSS-first. Gate de visibilidad vía <html class="intro-on"> decidida
+   por el script inline de <head> ANTES del primer pintado.
+   Las clases del emblema orbital compartido viven en OrbitEmblem.css
+   (CSS global, sin hash) — así OrbitEmblem es usable por el intro y por
+   el Loader #nav-loader sin romperse por el hash de CSS Modules. */
+
+/* ===== Gate ===== */
+
+.introOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+  clip-path: inset(0 0 0 0);
+}
+
+:global(html.intro-on) .introOverlay {
+  display: flex;
+  animation:
+    introExit 0.55s var(--ease-in-out) 2.2s both,
+    introFailsafe 0.01s linear 4s forwards;
+}
+
+/* Bloquea el scroll mientras dura */
+:global(html.intro-on body) {
+  overflow: hidden;
+}
+
+@keyframes introExit {
+  from {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  to {
+    clip-path: inset(0 0 100% 0);
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes introFailsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+/* Sin movimiento: el intro nunca se le muestra */
+:global(html.motion-off) .introOverlay {
+  display: none !important;
+}
+
+/* ===== Escena ===== */
+
+.introStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+/* Dos idiomas posibles: solo uno visible */
+.welcome {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.125rem, 2.6vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+  text-align: center;
+  opacity: 0;
+  animation: welcomeIn 0.45s var(--ease-out) 1.7s both;
+}
+
+.welcomeEs {
+  display: inline;
+}
+
+.welcomeEn {
+  display: none;
+}
+
+:global(html[lang="en"]) .welcomeEn {
+  display: inline;
+}
+:global(html[lang="en"]) .welcomeEs {
+  display: none;
+}
+
+@keyframes welcomeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Botón Saltar */
+.skip {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  min-height: 44px;
+  min-width: 44px;
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.skip:hover {
+  color: var(--color-text);
+  border-color: var(--color-blue);
+}

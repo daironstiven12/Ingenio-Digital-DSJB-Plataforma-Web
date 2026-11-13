@@ -8,7 +8,7 @@ import styles from "./SectionHeading.module.css";
 // (SplitText) + línea de acento que se dibuja bajo él.
 // La decisión de movimiento viene de lib/motion; sin movimiento, estático
 // y visible por defecto. Sin SplitText disponible, el título queda tal cual.
-export default function SectionHeading({ index, kicker, title, lead, id }) {
+export default function SectionHeading({ index, kicker, title, lead, id, align = "left" }) {
   const titleRef = useRef(null);
   const ruleRef = useRef(null);
 
@@ -91,7 +91,7 @@ export default function SectionHeading({ index, kicker, title, lead, id }) {
   }, [title]);
 
   return (
-    <div className={styles.heading}>
+    <div className={`${styles.heading} ${styles[`align_${align}`] ?? ""}`}>
       <p className={`eyebrow ${styles.eyebrow}`}>
         <span className={styles.index}>{index}</span>
         <span aria-hidden="true"> — </span>

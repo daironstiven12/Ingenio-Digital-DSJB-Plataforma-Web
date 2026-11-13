@@ -38,3 +38,18 @@
   border-radius: 2px;
   background: var(--gradient-brand-strong);
 }
+
+
+.align_center {
+  align-items: center;
+  text-align: center;
+  margin-inline: auto;
+}
+
+.align_center .eyebrow {
+  justify-content: center;
+}
+
+.align_center .lead {
+  margin-inline: auto;
+}

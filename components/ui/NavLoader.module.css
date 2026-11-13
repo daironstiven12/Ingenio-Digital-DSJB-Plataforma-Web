@@ -1,0 +1,452 @@
+/* #nav-loader — Loader global de navegación externa (CSS-first, ~2.4 s × --nav-speed).
+   Se muestra solo cuando <html> lleva la clase .nav-loading (la añade LoadingLink).
+   Sin la clase: display:none, sin JS no existe para el usuario, y el failsafe
+   de 5 s la retira pase lo que pase. */
+
+.navOverlay {
+  --nav-speed: 1; /* Multiplicador global de la duración */
+
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  opacity: 0;
+}
+
+/* Capa translúcida sobre la página (no opaca; la web se sigue viendo detrás) */
+:global(html) .navBackdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-bg) 62%, transparent);
+  opacity: 0;
+  animation: navLayerIn 0.15s var(--ease-out) forwards;
+  pointer-events: none;
+}
+
+:global([data-theme="light"]) .navBackdrop {
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+}
+
+/* Blur solo donde el navegador lo soporta y solo mientras dure */
+@supports (backdrop-filter: blur(1px)) {
+  :global(html.nav-loading) .navBackdrop {
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+  }
+}
+
+/* Sin soporte de color-mix: subimos la opacidad */
+@supports not (background: color-mix(in srgb, red 62%, transparent)) {
+  .navBackdrop {
+    background: rgba(10, 11, 30, 0.8);
+  }
+}
+
+/* Halo radial alrededor del conjunto, con el acento del proyecto */
+.navGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--nav-accent, #2f7bff) 38%, transparent) 0%,
+    transparent 70%
+  );
+  filter: blur(28px);
+  pointer-events: none;
+  opacity: 0;
+  animation: navLayerIn 0.4s var(--ease-out) 0.05s forwards;
+}
+
+:global(html.nav-loading) .navOverlay {
+  display: flex;
+  opacity: 1;
+}
+
+@keyframes navLayerIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Sin movimiento: nunca se muestra */
+:global(html.motion-off) .navOverlay {
+  display: none !important;
+}
+
+/* ===== Contenedor orbital ===== */
+
+.orbitWrap {
+  position: relative;
+  z-index: 1;
+  width: min(340px, 88vw);
+  aspect-ratio: 1 / 1;
+  pointer-events: none;
+}
+
+/* SVG central: spokes, anillo punteado, progreso, anillo eléctrico */
+.orbitSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Spokes: se dibujan desde el centro hacia el nodo, en cascada */
+.spoke {
+  stroke: var(--color-border-strong);
+  stroke-width: 1.5;
+  stroke-opacity: 0.55;
+  fill: none;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: spokeDraw calc(0.38s * var(--nav-speed)) ease both;
+}
+
+.spoke-0 { animation-delay: calc(0.3s * var(--nav-speed)); }
+.spoke-1 { animation-delay: calc(0.388s * var(--nav-speed)); }
+.spoke-2 { animation-delay: calc(0.476s * var(--nav-speed)); }
+.spoke-3 { animation-delay: calc(0.564s * var(--nav-speed)); }
+.spoke-4 { animation-delay: calc(0.652s * var(--nav-speed)); }
+.spoke-5 { animation-delay: calc(0.74s * var(--nav-speed)); }
+.spoke-6 { animation-delay: calc(0.828s * var(--nav-speed)); }
+.spoke-7 { animation-delay: calc(0.916s * var(--nav-speed)); }
+
+@keyframes spokeDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Pulsos luminosos viajando por cada spoke desde el emblema hacia el nodo */
+.pulse {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--n-color, #2f7bff);
+  box-shadow: 0 0 10px 3px var(--n-color, #2f7bff);
+  opacity: 0;
+  offset-rotate: auto;
+  animation: pulseTravel calc(0.38s * var(--nav-speed)) cubic-bezier(0.25, 0.1, 0.25, 1) both;
+  pointer-events: none;
+}
+
+.pulse-0 { --n-color: #2f7bff; animation-delay: calc(0.3s * var(--nav-speed)); }
+.pulse-1 { --n-color: #2f7bff; animation-delay: calc(0.388s * var(--nav-speed)); }
+.pulse-2 { --n-color: #22d3ee; animation-delay: calc(0.476s * var(--nav-speed)); }
+.pulse-3 { --n-color: #22d3ee; animation-delay: calc(0.564s * var(--nav-speed)); }
+.pulse-4 { --n-color: #19e3d0; animation-delay: calc(0.652s * var(--nav-speed)); }
+.pulse-5 { --n-color: #7c5cff; animation-delay: calc(0.74s * var(--nav-speed)); }
+.pulse-6 { --n-color: #ffb454; animation-delay: calc(0.828s * var(--nav-speed)); }
+.pulse-7 { --n-color: #19e3d0; animation-delay: calc(0.916s * var(--nav-speed)); }
+
+@keyframes pulseTravel {
+  0% { offset-distance: 12%; opacity: 0; }
+  15% { opacity: 1; }
+  100% { offset-distance: 88%; opacity: 0; }
+}
+
+/* Nodos HTML: círculos con borde y fondo elevado; icono visible desde el inicio */
+.node {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 9.2%;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-raised);
+  color: var(--color-text-secondary);
+  transition: none;
+  opacity: 0;
+  animation: nodeDrop calc(0.35s * var(--nav-speed)) var(--ease-out) both;
+}
+
+.node-0 { left: 50%;    top: 5.5%;   animation-delay: calc(0.2s * var(--nav-speed)); }
+.node-1 { left: 81.47%; top: 18.53%; animation-delay: calc(0.24s * var(--nav-speed)); }
+.node-2 { left: 94.5%;  top: 50%;    animation-delay: calc(0.28s * var(--nav-speed)); }
+.node-3 { left: 81.47%; top: 81.47%; animation-delay: calc(0.32s * var(--nav-speed)); }
+.node-4 { left: 50%;    top: 94.5%;  animation-delay: calc(0.36s * var(--nav-speed)); }
+.node-5 { left: 18.53%; top: 81.47%; animation-delay: calc(0.4s * var(--nav-speed)); }
+.node-6 { left: 5.5%;   top: 50%;    animation-delay: calc(0.44s * var(--nav-speed)); }
+.node-7 { left: 18.53%; top: 18.53%; animation-delay: calc(0.48s * var(--nav-speed)); }
+
+@keyframes nodeDrop {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* Relleno desde el centro hacia cada nodo (color por área) */
+.nodeFill {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--n-fill);
+  opacity: 0;
+  transform: scale(0.4);
+  animation: nodeFill calc(0.42s * var(--nav-speed)) var(--ease-out) both;
+}
+
+.node-0 .nodeFill { animation-delay: calc(0.66s * var(--nav-speed)); }
+.node-1 .nodeFill { animation-delay: calc(0.75s * var(--nav-speed)); }
+.node-2 .nodeFill { animation-delay: calc(0.84s * var(--nav-speed)); }
+.node-3 .nodeFill { animation-delay: calc(0.93s * var(--nav-speed)); }
+.node-4 .nodeFill { animation-delay: calc(1.02s * var(--nav-speed)); }
+.node-5 .nodeFill { animation-delay: calc(1.11s * var(--nav-speed)); }
+.node-6 .nodeFill { animation-delay: calc(1.2s * var(--nav-speed)); }
+.node-7 .nodeFill { animation-delay: calc(1.29s * var(--nav-speed)); }
+
+@keyframes nodeFill {
+  from { opacity: 0; transform: scale(0.3); }
+  55%  { opacity: 1; transform: scale(1.15); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Halo luminoso al rellenarse */
+.nodeFill::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  box-shadow: 0 0 18px 2px var(--n-fill);
+  opacity: 0;
+  animation: nodeHalo calc(0.5s * var(--nav-speed)) ease-out both;
+  animation-delay: inherit;
+}
+
+@keyframes nodeHalo {
+  0%   { opacity: 0; box-shadow: 0 0 0 0 var(--n-fill); }
+  30%  { opacity: 1; box-shadow: 0 0 22px 4px var(--n-fill); }
+  100% { opacity: 0; box-shadow: 0 0 0 0 var(--n-fill); }
+}
+
+/* Icono dentro del nodo: pasa a contraste AA sobre el relleno */
+.nodeIcon {
+  position: relative;
+  z-index: 1;
+  color: var(--color-text-secondary);
+  transition: color 120ms;
+  animation: nodeIconFlip calc(0.01s * var(--nav-speed)) ease forwards;
+}
+
+.n-sw  { --n-fill: #2f7bff; --n-icon: #f5f6ff; }
+.n-arq { --n-fill: #7c5cff; --n-icon: #f5f6ff; }
+.n-redes { --n-fill: #22d3ee; --n-icon: #0a0b1e; }
+.n-ele { --n-fill: #19e3d0; --n-icon: #0a0b1e; }
+.n-for { --n-fill: #ffb454; --n-icon: #0a0b1e; }
+
+.node-0 .nodeIcon { animation-delay: calc(0.66s * var(--nav-speed)); }
+.node-1 .nodeIcon { animation-delay: calc(0.75s * var(--nav-speed)); }
+.node-2 .nodeIcon { animation-delay: calc(0.84s * var(--nav-speed)); }
+.node-3 .nodeIcon { animation-delay: calc(0.93s * var(--nav-speed)); }
+.node-4 .nodeIcon { animation-delay: calc(1.02s * var(--nav-speed)); }
+.node-5 .nodeIcon { animation-delay: calc(1.11s * var(--nav-speed)); }
+.node-6 .nodeIcon { animation-delay: calc(1.2s * var(--nav-speed)); }
+.node-7 .nodeIcon { animation-delay: calc(1.29s * var(--nav-speed)); }
+
+@keyframes nodeIconFlip {
+  to { color: var(--n-icon); }
+}
+
+/* Congelador del /nav-test: pausa todas las animaciones en un instante */
+.frozen,
+.frozen *,
+.frozen *::before,
+.frozen *::after {
+  animation-play-state: paused !important;
+  animation-delay: var(--freeze-delay, 0s) !important;
+}
+
+/* Colores por área (iguales al orbital del hero) */
+.node-0 { --n-fill: #2f7bff; }
+.node-1 { --n-fill: #2f7bff; }
+.node-2 { --n-fill: #22d3ee; }
+.node-3 { --n-fill: #22d3ee; }
+.node-4 { --n-fill: #19e3d0; }
+.node-5 { --n-fill: #7c5cff; }
+.node-6 { --n-fill: #ffb454; }
+.node-7 { --n-fill: #19e3d0; }
+
+/* Emblema central */
+.emblemWrap {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-indigo-band);
+  animation: emblemIn calc(0.45s * var(--nav-speed)) var(--ease-out) 0.05s both;
+}
+
+@media (min-width: 1024px) {
+  .emblemWrap {
+    width: 168px;
+  }
+}
+
+@keyframes emblemIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.emblemImg {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Círculo "eléctrico" alrededor del emblema (filtro sólo durante el loader) */
+.emberRing {
+  opacity: 0;
+  fill: none;
+  stroke: var(--color-blue);
+  stroke-width: 6;
+  stroke-opacity: 0.9;
+  animation: emberInOut calc(2.1s * var(--nav-speed)) ease 0.15s both;
+}
+
+:global(html.nav-loading) .emberRing {
+  filter: url(#electric);
+}
+
+@keyframes emberInOut {
+  0%   { opacity: 0; stroke-opacity: 0.9; }
+  15%  { opacity: 0.95; }
+  70%  { opacity: 0.85; }
+  100% { opacity: 0; }
+}
+
+/* Anillo punteado contenedor (decorativo, sutil) */
+.orbitRing {
+  fill: none;
+  stroke: var(--color-border-strong);
+  stroke-width: 1.25;
+  stroke-dasharray: 4 10;
+  opacity: 0.45;
+  animation: ringSpin calc(60s * var(--nav-speed)) linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+@keyframes ringSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Anillo de progreso (0→100 %) alrededor del emblema */
+.progressRing {
+  fill: none;
+  stroke: url(#navRingGradient);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  rotate: -90deg;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: progressFill calc(1.3s * var(--nav-speed)) cubic-bezier(0.3, 0, 0.2, 1) calc(0.9s * var(--nav-speed)) forwards;
+}
+
+@keyframes progressFill {
+  from { stroke-dashoffset: 100; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* Pulso simultáneo final */
+.finalPulse {
+  position: absolute;
+  z-index: 2;
+  inset: 30%;
+  border-radius: 50%;
+  border: 2px solid var(--color-electric);
+  opacity: 0;
+  animation: finalPop calc(0.5s * var(--nav-speed)) ease-out calc(2.05s * var(--nav-speed)) both;
+}
+
+@keyframes finalPop {
+  0%   { opacity: 0; transform: scale(0.8); }
+  40%  { opacity: 0.8; transform: scale(1.1); }
+  100% { opacity: 0; transform: scale(1.35); }
+}
+
+/* Texto bajo el conjunto */
+.textBlock {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+  opacity: 0;
+  animation: textIn calc(0.4s * var(--nav-speed)) ease calc(1.6s * var(--nav-speed)) both;
+}
+
+@keyframes textIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.label {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.domain {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  max-width: 80vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Tema claro: nodos blancos con borde, texto navy */
+:global([data-theme="light"]) .node {
+  background: #ffffff;
+  border-color: #d3e0f5;
+  color: #55587f;
+}
+
+:global([data-theme="light"]) .emblemWrap {
+  background: #edeef8;
+  border-color: #d3e0f5;
+}
+
+:global([data-theme="light"]) .label {
+  color: #14153a;
+}
+
+:global([data-theme="light"]) .domain {
+  color: #55587f;
+}
+
+:global([data-theme="light"]) .spoke {
+  stroke: #c6c7e4;
+  stroke-opacity: 0.8;
+}
+
+:global([data-theme="light"]) .orbitRing {
+  stroke: #c6c7e4;
+  stroke-opacity: 0.7;
+}

@@ -1,0 +1,243 @@
+.card {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --elec-surface: #12132b;
+  --elec-border: #2a2c5c;
+  --elec-line: #3f66ff;
+  --elec-glow: rgba(47, 123, 255, 0.45);
+  --elec-tint: #2f7bff;
+  --elec-badge-bg: rgba(47, 123, 255, 0.16);
+  --elec-badge-border: rgba(47, 123, 255, 0.4);
+  --elec-badge-text: #8fb0ff;
+
+  position: relative;
+  isolation: isolate;
+  width: min(100%, 22rem);
+  min-height: 22rem;
+  display: flex;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--elec-surface);
+  border: 1px solid var(--elec-border);
+  box-shadow: 0 1px 2px rgba(4, 4, 10, 0.25);
+  transition:
+    transform 240ms var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+  transform: perspective(950px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+}
+
+/* ===== Capa 1: marco degradado (visible en claro) ===== */
+.frame {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== Capa 2: borde eléctrico (SVG + filtro solo .live) ===== */
+.borderSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.borderRect {
+  fill: none;
+  stroke: var(--elec-line);
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+  stroke-dasharray: 26 74;
+  opacity: 0.85;
+}
+
+.borderRectA {
+  animation: borderTravel 7s linear infinite;
+}
+
+.borderRectB {
+  animation: borderTravel 7s linear -3.5s infinite;
+  stroke-width: 0.7;
+  opacity: 0.5;
+}
+
+@keyframes borderTravel {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+.live .borderRectA,
+.live .borderRectB {
+  filter: url(#electric);
+}
+
+/* ===== Capas 3 y 4: glows ===== */
+.glowA,
+.glowB,
+.bgGlow {
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glowA {
+  top: -30%;
+  right: -25%;
+  width: 70%;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, var(--elec-glow), transparent 65%);
+  opacity: 0.75;
+  filter: blur(26px);
+}
+
+.glowB {
+  bottom: -32%;
+  left: -25%;
+  width: 65%;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, var(--elec-glow), transparent 65%);
+  opacity: 0.5;
+  filter: blur(30px);
+}
+
+.bgGlow {
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 120%, var(--elec-glow), transparent 70%);
+  opacity: 0.55;
+}
+
+/* ===== Capa 5: contenido ===== */
+.content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-5);
+}
+
+.badge {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--elec-badge-text);
+  background: var(--elec-badge-bg);
+  border: 1px solid var(--elec-badge-border);
+  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-4);
+}
+
+.title {
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+  line-height: 1.15;
+}
+
+.description {
+  font-size: var(--fs-small);
+  color: var(--color-text-secondary);
+  line-height: 1.65;
+}
+
+.divider {
+  display: block;
+  height: 1px;
+  margin-top: auto;
+  background: linear-gradient(90deg, transparent, var(--elec-line), transparent);
+  opacity: 0.6;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* ===== Tonos (oscuro: superficie #12132B, glow contenido) ===== */
+
+.tone_violet {
+  --elec-line: #6a51ff;
+  --elec-glow: rgba(124, 92, 255, 0.45);
+  --elec-tint: #7c5cff;
+  --elec-badge-bg: rgba(124, 92, 255, 0.18);
+  --elec-badge-border: rgba(124, 92, 255, 0.45);
+  --elec-badge-text: #b7a6ff;
+}
+
+.tone_cyan {
+  --elec-line: #10bdd6;
+  --elec-glow: rgba(34, 211, 238, 0.4);
+  --elec-tint: #22d3ee;
+  --elec-badge-bg: rgba(34, 211, 238, 0.16);
+  --elec-badge-border: rgba(34, 211, 238, 0.4);
+  --elec-badge-text: #8ae6f5;
+}
+
+/* ===== Claro: superficie blanca, borde degradado, glow tenue tintado ===== */
+
+:global([data-theme="light"]) .card {
+  --elec-surface: #ffffff;
+  --elec-border: #e0e1f5;
+  --elec-line: #2563eb;
+  --elec-glow: rgba(79, 70, 229, 0.22);
+  --elec-badge-bg: rgba(79, 70, 229, 0.08);
+  --elec-badge-border: rgba(79, 70, 229, 0.28);
+  --elec-badge-text: #4338ca;
+  box-shadow: var(--shadow-sm);
+}
+
+:global([data-theme="light"]) .frame {
+  background: linear-gradient(140deg, #2563eb 0%, #7c3aed 100%);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  padding: 1.5px;
+  opacity: 0.9;
+}
+
+:global([data-theme="light"]) .tone_violet {
+  --elec-glow: rgba(124, 58, 237, 0.2);
+  --elec-line: #7c3aed;
+}
+
+:global([data-theme="light"]) .tone_cyan {
+  --elec-line: #0e7490;
+  --elec-glow: rgba(8, 145, 178, 0.2);
+  --elec-badge-bg: rgba(14, 116, 144, 0.08);
+  --elec-badge-border: rgba(14, 116, 144, 0.3);
+  --elec-badge-text: #155e75;
+}
+
+/* ===== Reduced motion: sin corriente ni glow animado ===== */
+
+:global(html.motion-off) .borderRectA,
+:global(html.motion-off) .borderRectB,
+:global(html.motion-off) .badge {
+  animation: none;
+}
+
+:global(html.motion-off) .card {
+  transform: none !important;
+}
+
+.leading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}

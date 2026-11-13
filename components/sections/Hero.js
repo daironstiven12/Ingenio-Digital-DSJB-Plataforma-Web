@@ -147,6 +147,7 @@ export default function Hero() {
             sizes="100vw"
             className={styles.poster}
             aria-hidden="true"
+            priority
           />
           <HeroVideo />
           <div className="hero-veil" aria-hidden="true" />

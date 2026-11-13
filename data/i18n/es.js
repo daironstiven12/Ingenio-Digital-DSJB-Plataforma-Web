@@ -6,6 +6,9 @@ export const es = {
     roleCreator: "Creador de Ingenio Digital",
     linkedinAria: "LinkedIn de {name}",
     githubAria: "GitHub de {name}",
+    siteAria: "Sitio de {name}",
+    photoAlt: "Retrato de {name}",
+    emailAria: "Correo para {name}",
   },
   brandDesc:
     "Organización tecnológica multidisciplinaria: ingeniería de sistemas, desarrollo de software, arquitectura tecnológica, redes, electrónica e innovación educativa.",
@@ -105,6 +108,39 @@ export const es = {
     projects: {
       kicker: "Portafolio",
       title: "Proyectos destacados",
+      live: "Desplegado",
+      view: "Ver proyecto",
+      imageAlt: "Vista previa de {name}",
+      items: {
+        "asistencias-utch": {
+          name: "Registro de Asistencia UTCH",
+          description:
+            "Registro de asistencia a clases, con acceso para estudiantes, docentes y representantes.",
+        },
+        "suenos-de-papiro": {
+          name: "Sueños de Papiro · Dedicación Eterna",
+          description:
+            "Tienda web de productos personalizados (agendas, regalos y velas), con catálogo y pedidos por WhatsApp.",
+        },
+        "panaderia-la-reina": {
+          name: "Panadería La Reina · POS",
+          description:
+            "Sistema de facturación y punto de venta para una panadería de Quibdó.",
+        },
+        "binova-ia": {
+          name: "BINOVA IA",
+          description:
+            "Contenedores inteligentes con IA para clasificar residuos, con app, trazabilidad y monitoreo.",
+        },
+      },
+      stateGuideKicker: "Cómo publicamos",
+      stateGuideTitle: "Tres estados honestos",
+      stateDev: "En desarrollo",
+      stateDevText: "En construcción. Sin fechas, cifras ni clientes inventados hasta documentarlo de verdad.",
+      stateDesign: "En diseño",
+      stateDesignText: "Diseñado y validado, aún sin construir. Se publica cuando exista algo verificable.",
+      statePublished: "Publicado",
+      statePublishedText: "Caso completo y verificable: contexto, decisiones, resultado y enlaces.",
       leadEmpty:
         "Cada proyecto se publicará con su descripción, imágenes y estado verificables. Aquí va la estructura del portafolio.",
       leadFilled:
@@ -190,7 +226,6 @@ export const es = {
       areaFallback: "Área en preparación",
       slotLabel: "Espacio",
       note: "No publicamos perfiles sin confirmación. Cuando el equipo esté listo, cada tarjeta incluirá retrato, nombre, rol y área reales.",
-      memberPhotoAlt: "Retrato de",
     },
     finalCta: {
       eyebrow: "Contacto",
@@ -200,13 +235,31 @@ export const es = {
         "Canal de contacto en configuración. Los datos oficiales se publicarán aquí cuando estén confirmados.",
       emailCta: "Escribir a Ingenio Digital DSJB",
       projectsCta: "Ver proyectos",
+      microcopy: "Se abrirá tu app; no guardamos nada.",
+      nameLabel: "Nombre (opcional)",
+      messageLabel: "Mensaje",
+      messagePlaceholder: "Cuéntanos qué necesitas…",
+      sendWhatsApp: "Enviar por WhatsApp",
+      sendEmail: "Enviar por correo",
+      copyEmail: "Copiar correo",
+      copied: "Copiado al portapapeles",
+      subject: "Contacto desde la web",
+      channelsTitle: "Canales",
+      channelWhatsapp: "WhatsApp",
+      channelEmail: "Correo",
+      channelSocial: "Redes",
+      whatsappPending: "WhatsApp en configuración.",
+      emailPending: "Correo en configuración.",
+      socialPending: "Redes en configuración.",
     },
   },
   loading: {
     label: "Cargando Ingenio Digital DSJB",
     welcome: "Bienvenido a Ingenio Digital",
+    welcomeEn: "Welcome to Ingenio Digital",
     skip: "Saltar",
     opening: "Abriendo proyecto…",
+    openingProject: "Abriendo {name}…",
   },
   footer: {
     sections: "Secciones",

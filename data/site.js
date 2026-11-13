@@ -29,10 +29,17 @@ export const site = {
 
 // La navegación (etiquetas localizadas ES/EN) vive en data/i18n/.
 
+// Canales reales del equipo — solo se muestran los que tengan valor.
+// Formatos: whatsapp "573001234567" (solo dígitos con prefijo país) · email "hola@dominio.com"
 export const contact = {
-  email: null,
-  phone: null,
   whatsapp: null,
-  location: null,
-  social: [], // { name, href } — solo perfiles confirmados
+  email: null,
+};
+
+// Redes oficiales — null/no confirmadas no se renderizan.
+export const social = {
+  linkedin: null,
+  github: null,
+  facebook: null,
+  instagram: null,
 };

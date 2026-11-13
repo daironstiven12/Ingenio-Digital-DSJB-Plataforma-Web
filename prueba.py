@@ -8,7 +8,7 @@ print("frutas: ", type(frutas))
 print("Jugadores: ", type(jugadores))
 
 
-color_uno = colores[9]
+color_uno = colores[0]
 if color_uno == "Azul":
     print("El primer color es Azul y vale 10 puntos.")
 else:

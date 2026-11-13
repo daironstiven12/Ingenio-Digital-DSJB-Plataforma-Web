@@ -1,9 +1,13 @@
+import Script from "next/script";
 import { Inter, Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import LanguageProvider from "@/components/i18n/LanguageProvider";
 import ScrollProgress from "@/components/motion/ScrollProgress";
-import BrandLoader from "@/components/ui/BrandLoader";
+import OrbitEmblem from "@/components/ui/OrbitEmblem";
+import NavLoader from "@/components/ui/NavLoader";
+import intro from "@/components/ui/IntroOverlay.module.css";
+import "@/components/ui/OrbitEmblem.css";
 import { resolveLang } from "@/lib/i18n";
 import { es } from "@/data/i18n/es";
 import { en } from "@/data/i18n/en";
@@ -123,6 +127,32 @@ const themeInit = `(function(){
   document.documentElement.classList.add("js");
 })();`;
 
+// Script de cierre del intro (unas pocas líneas): quita la clase pre-pintada,
+// restaura el scroll y marca la visita SOLO al terminar/saltar. Si el overlay
+// desaparece por el failsafe CSS, no se marca (la intro pudo no verse).
+const introExitScript = `(function(){
+  var root=document.documentElement;
+  function end(seen){
+    if(!root.classList.contains("intro-on"))return;
+    if(root.classList.contains("intro-done"))return;
+    root.classList.add("intro-done");
+    root.classList.remove("intro-on");
+    try{if(seen){window.localStorage.setItem("ingenio-intro",JSON.stringify({t:Date.now()}));}}catch(e){}
+    var m=document.getElementById("contenido");
+    if(m){try{m.focus({preventScroll:true});}catch(e){}}
+  }
+  var skip=document.querySelector("[data-intro-skip]");
+  if(skip){skip.addEventListener("click",function(){end(true);});}
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"){end(true);}});
+  var overlay=document.getElementById("intro");
+  if(!overlay){end(false);return;}
+  overlay.addEventListener("animationend",function(e){
+    if(e.target!==overlay)return;
+    if(e.animationName==="introExit"){end(true);}
+    else if(e.animationName==="introFailsafe"){end(false);}
+  });
+})();`;
+
 // Datos estructurados mínimos: sin URLs, `sameAs` ni datos de contacto sin confirmar.
 const organizationJsonLd = {
   "@context": "https://schema.org",
@@ -152,11 +182,42 @@ export default async function RootLayout({ children }) {
       className={`${display.variable} ${body.variable} ${mono.variable}`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+        <Script id="theme-init" strategy="beforeInteractive">
+          {themeInit}
+        </Script>
       </head>
       <body>
+        {/* Filtro "electric" único para las tarjetas (solo en viewport mediante .live) */}
+        <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: "absolute" }}>
+          <filter id="electric" width="240%" height="240%" x="-70%" y="-70%" colorInterpolationFilters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="7" result="noiseA" />
+            <feDisplacementMap in="SourceGraphic" in2="noiseA" scale="18" xChannelSelector="R" yChannelSelector="G" result="dispA" />
+            <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="19" result="noiseB" />
+            <feDisplacementMap in="dispA" in2="noiseB" scale="14" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </svg>
+
+        {/* Intro CSS-first: visible solo si <html class="intro-on"> (script inline).
+            Sin JS nunca se muestra; el failsafe oculta a los 4 s aunque falle todo. */}
+        <div id="intro" className={intro.introOverlay} role="status" aria-live="polite" aria-label={dict.loading.label}>
+          <button type="button" className={intro.skip} data-intro-skip aria-label={dict.loading.skip}>
+            {dict.loading.skip}
+          </button>
+          <div className={intro.introStage}>
+            <OrbitEmblem size={240} uid="orbitEmblemIntroClip" />
+            <p className={intro.welcome}>
+              <span className={intro.welcomeEs} lang="es">{dict.loading.welcome}</span>
+              <span className={intro.welcomeEn} lang="en">{dict.loading.welcomeEn}</span>
+            </p>
+          </div>
+        </div>
+        {/* Loader global para salidas externas (LoadingLink). Servidor-rendered,
+            CSS-first; el anillo de progreso manda el cierre (animationend). */}
+        <NavLoader dict={dict} />
+        <Script id="intro-exit" strategy="beforeInteractive">
+          {introExitScript}
+        </Script>
         <LanguageProvider initialLang={lang}>
-          <BrandLoader />
           <ScrollProgress />
           <a href="#contenido" className="skip-link">
             {dict.skipLink}
@@ -165,10 +226,9 @@ export default async function RootLayout({ children }) {
           <main id="contenido" tabIndex={-1}>{children}</main>
           <Footer />
         </LanguageProvider>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
-        />
+        <Script id="organization-jsonld" type="application/ld+json" strategy="beforeInteractive">
+          {JSON.stringify(organizationJsonLd)}
+        </Script>
       </body>
     </html>
   );

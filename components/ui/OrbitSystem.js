@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Sigma,
   Globe,
@@ -53,6 +53,7 @@ function nodePosition(index) {
 export default function OrbitSystem({ mode = "hero", ringsRef, loaderRefs, ariaHidden = false }) {
   const { t } = useT();
   const [activeNode, setActiveNode] = useState(null);
+  const containerRef = useRef(null);
 
   const nodeLabels = t("hero.nodes");
   const labels = Array.isArray(nodeLabels) ? nodeLabels : [];
@@ -65,7 +66,22 @@ export default function OrbitSystem({ mode = "hero", ringsRef, loaderRefs, ariaH
     if (mode !== "hero") return undefined;
     const clear = () => setActiveNode(null);
     document.addEventListener("pointerdown", clear);
-    return () => document.removeEventListener("pointerdown", clear);
+
+    // Resaltado cruzado: un card de Especializaciones resalta el nodo equivalente
+    const onHighlight = (event) => {
+      const root = containerRef.current;
+      if (!root) return;
+      const area = event?.detail?.area;
+      root.querySelectorAll("[data-area]").forEach((node) => {
+        node.classList.toggle("orbitalNodeBoost", area != null && node.dataset.area === area);
+      });
+    };
+    window.addEventListener("ingenio:orbital-highlight", onHighlight);
+
+    return () => {
+      document.removeEventListener("pointerdown", clear);
+      window.removeEventListener("ingenio:orbital-highlight", onHighlight);
+    };
   }, [mode]);
 
   const spokes = NODE_ICONS.map((_, index) => {
@@ -186,6 +202,7 @@ export default function OrbitSystem({ mode = "hero", ringsRef, loaderRefs, ariaH
 
   return (
     <div
+      ref={containerRef}
       className={`${styles.system} ${styles.heroMode}`}
       role={ariaHidden ? undefined : "group"}
       aria-hidden={ariaHidden || undefined}
@@ -243,9 +260,10 @@ export default function OrbitSystem({ mode = "hero", ringsRef, loaderRefs, ariaH
               setActiveNode(null);
               goToArea(area, index);
             }}
+            data-area={area}
             onPointerEnter={() => setActiveNode(null)}
           >
-            <Icon size={19} aria-hidden="true" className={styles.nodeIcon} />
+            <Icon size={19} aria-hidden="true" className={styles.nodeIcon} strokeWidth={1.8} />
             <span className={styles.nodeLabel} aria-hidden="true">
               {areaTitle}
             </span>

@@ -412,7 +412,8 @@ export default function HeroGraph() {
       })();
 
       // ---------- Bucle principal ----------
-      const clock = new THREE.Clock();
+      // Delta propio (THREE.Clock está deprecado); el resultado visual es idéntico.
+      let prevTime = performance.now();
       let lastFrame = 0;
       let rafId = 0;
       const camBase = camera.position.clone();
@@ -425,7 +426,8 @@ export default function HeroGraph() {
         lastFrame = now;
         if (!inView || !pageVisible) return;
 
-        const dt = Math.min(clock.getDelta(), 0.05);
+        const dt = Math.min((now - prevTime) / 1000, 0.05);
+        prevTime = now;
 
         // Amortiguado del parallax de cámara hacia el puntero
         pointerSmoothed.x += (pointer.nx - pointerSmoothed.x) * 0.04;

@@ -2,8 +2,8 @@
   position: relative;
   display: grid;
   align-items: center;
-  min-height: calc(100vh - var(--header-h));
-  min-height: calc(100svh - var(--header-h));
+  min-height: 100vh;
+  min-height: 100svh;
   background: var(--hero-solid);
   padding-block: var(--space-4) var(--space-9);
   overflow: hidden;
@@ -158,9 +158,15 @@
   outline-color: #22d3ee;
 }
 
-@media (max-width: 479px) {
-  .actions > * {
-    width: 100%;
+/* Botones en móvil: compactos, ancho automático, fuente 15 px */
+@media (max-width: 1023px) {
+  .actions :global(.btn-primary),
+  .actions :global(.btn-secondary) {
+    min-height: 44px;
+    padding-inline: 20px;
+    font-size: 15px;
+    width: auto;
+    flex: 0 0 auto;
   }
 }
 

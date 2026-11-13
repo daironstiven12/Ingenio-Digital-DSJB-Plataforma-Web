@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Mail, MapPin } from "lucide-react";
+import { Mail, MessageCircle } from "lucide-react";
 import LinkedinIcon from "@/components/ui/LinkedinIcon";
 import GithubIcon from "@/components/ui/GithubIcon";
 import { site, contact } from "@/data/site";
@@ -72,20 +72,27 @@ export default function Footer() {
             <p className={styles.brandName}>Ingenio Digital DSJB</p>
           </div>
           <p className={styles.brandDesc}>{t("footer.tagline")}</p>
-          {contact.email || contact.location ? (
+          {contact.email || contact.whatsapp ? (
             <ul className={styles.contactList}>
+              {contact.whatsapp ? (
+                <li>
+                  <a
+                    href={`https://wa.me/${String(contact.whatsapp).replace(/\D/g, "")}`}
+                    className={styles.contactLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <MessageCircle size={15} aria-hidden="true" />
+                    WhatsApp
+                  </a>
+                </li>
+              ) : null}
               {contact.email ? (
                 <li>
                   <a href={`mailto:${contact.email}`} className={styles.contactLink}>
                     <Mail size={15} aria-hidden="true" />
                     {contact.email}
                   </a>
-                </li>
-              ) : null}
-              {contact.location ? (
-                <li className={styles.contactText}>
-                  <MapPin size={15} aria-hidden="true" />
-                  {contact.location}
                 </li>
               ) : null}
             </ul>

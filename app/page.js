@@ -1,10 +1,10 @@
 import Hero from "@/components/sections/Hero";
 import Marquee from "@/components/sections/Marquee";
 import Specializations from "@/components/sections/Specializations";
-import FeaturedProjects from "@/components/sections/FeaturedProjects";
+import FeaturedProjectsSection from "@/components/sections/FeaturedProjectsSection";
 import ValueProp from "@/components/sections/ValueProp";
 import DigitalLab from "@/components/sections/DigitalLab";
-import Team from "@/components/sections/Team";
+import TeamSection from "@/components/sections/TeamSection";
 import FinalCTA from "@/components/sections/FinalCTA";
 
 export default function HomePage() {
@@ -13,10 +13,10 @@ export default function HomePage() {
       <Hero />
       <Marquee />
       <Specializations />
-      <FeaturedProjects />
+      <FeaturedProjectsSection />
       <ValueProp />
       <DigitalLab />
-      <Team />
+      <TeamSection />
       <FinalCTA />
     </>
   );

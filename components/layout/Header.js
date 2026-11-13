@@ -1,15 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { Menu, X, ArrowRight, Sun, Moon } from "lucide-react";
 import { site } from "@/data/site";
 import { useT } from "@/components/i18n/LanguageProvider";
-import useMagnetic from "@/lib/useMagnetic";
 import styles from "./Header.module.css";
 
-// El tema lo aplica el script inline de layout.js y lo persiste el toggle;
-// useSyncExternalStore lo lee del atributo data-theme sin efectos en cascada.
+// Tema aplicado por el script inline de layout.js; useSyncExternalStore lo lee
+// del atributo data-theme sin efectos en cascada.
 function subscribeTheme(callback) {
   const observer = new MutationObserver(callback);
   observer.observe(document.documentElement, {
@@ -23,18 +22,55 @@ const getThemeSnapshot = () =>
   document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
 const getServerThemeSnapshot = () => "dark";
 
-// Barra sticky: emblema + "Ingenio Digital" (una línea), selector de idioma
-// ES|EN, selector de tema, scroll-spy con aria-current, compacta al hacer
-// scroll y menú móvil (Escape, focus trap, bloqueo de scroll).
+function LangToggle({ lang, setLang, groupLabel }) {
+  return (
+    <div className={styles.langToggle} role="group" aria-label={groupLabel}>
+      {["es", "en"].map((code) => (
+        <button
+          key={code}
+          type="button"
+          className={`${styles.langButton} ${lang === code ? styles.langButtonActive : ""}`}
+          aria-pressed={lang === code}
+          onClick={() => setLang(code)}
+        >
+          {code.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ThemeButton({ theme, onToggle, label }) {
+  const isLight = theme === "light";
+  return (
+    <button
+      type="button"
+      className={styles.iconButton}
+      onClick={onToggle}
+      aria-label={label}
+      aria-pressed={isLight}
+    >
+      {isLight ? (
+        <Sun size={19} aria-hidden="true" />
+      ) : (
+        <Moon size={19} aria-hidden="true" />
+      )}
+    </button>
+  );
+}
+
+// Barra de ancho completo, camuflada con el héroe: transparente arriba,
+// fondo sólido + borde inferior al hacer scroll. Menú móvil a pantalla
+// completa con ES|EN + tema + CTA. Scroll-spy con aria-current.
 export default function Header() {
   const { t, lang, setLang } = useT();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState("inicio");
   const theme = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getServerThemeSnapshot);
-  const ctaRef = useMagnetic(4);
   const toggleRef = useRef(null);
   const panelRef = useRef(null);
+  const headerRef = useRef(null);
 
   const navItems = t("nav.items");
 
@@ -80,6 +116,11 @@ export default function Header() {
     return () => observer.disconnect();
   }, [navItems]);
 
+  const closePanel = useCallback(() => {
+    setOpen(false);
+    toggleRef.current?.focus();
+  }, []);
+
   useEffect(() => {
     if (!open) return undefined;
 
@@ -91,8 +132,8 @@ export default function Header() {
 
     const onKeyDown = (event) => {
       if (event.key === "Escape") {
-        setOpen(false);
-        toggleRef.current?.focus();
+        event.preventDefault();
+        closePanel();
         return;
       }
       if (event.key !== "Tab") return;
@@ -112,13 +153,22 @@ export default function Header() {
       }
     };
 
+    // Clic fuera del menú cierra
+    const onPointerDown = (event) => {
+      if (headerRef.current && !headerRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
     document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onPointerDown);
 
     return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown);
     };
-  }, [open]);
+  }, [open, closePanel]);
 
   const toggleTheme = () => {
     const next = theme === "light" ? "dark" : "light";
@@ -132,86 +182,69 @@ export default function Header() {
 
   const isLight = theme === "light";
   const navList = Array.isArray(navItems) ? navItems : [];
+  const desktopItems = navList.filter((item) => item.href !== "#contacto");
 
   return (
-    <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
+    <header ref={headerRef} className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
       <div className={`container ${styles.inner}`}>
         <a href="#inicio" className={styles.brand} aria-label={t("nav.homeLabel")}>
           <Image
             src={site.logo ?? "/logo.jpeg"}
             alt=""
-            width={80}
-            height={80}
-            sizes="44px"
+            width={64}
+            height={64}
+            sizes="36px"
             className={styles.brandLogo}
             priority
           />
           <span className={styles.brandName}>Ingenio&nbsp;Digital</span>
         </a>
 
+        {/* Escritorio: enlaces centrados, controles a la derecha */}
         <nav className={styles.nav} aria-label={t("nav.mainLabel")}>
           <ul className={styles.navList}>
-            {navList
-              .filter((item) => item.href !== "#contacto")
-              .map((item) => {
-                const id = item.href.replace("#", "");
-                const isActive = active === id;
-                const label = id === "laboratorio" ? t("nav.labShort") : item.label;
-                return (
-                  <li key={item.href}>
-                    <a
-                      href={item.href}
-                      className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
-                      aria-current={isActive ? "true" : undefined}
-                    >
-                      {label}
-                    </a>
-                  </li>
-                );
-              })}
+            {desktopItems.map((item) => {
+              const id = item.href.replace("#", "");
+              const isActive = active === id;
+              const label = id === "laboratorio" ? t("nav.labShort") : item.label;
+              return (
+                <li key={item.href}>
+                  <a
+                    href={item.href}
+                    className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
+                    aria-current={isActive ? "true" : undefined}
+                  >
+                    {label}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
+        </nav>
+
+        <div className={styles.actionsDesktop}>
+          <LangToggle lang={lang} setLang={setLang} groupLabel={t("lang.groupLabel")} />
+          <ThemeButton
+            theme={theme}
+            onToggle={toggleTheme}
+            label={isLight ? t("theme.toDark") : t("theme.toLight")}
+          />
           <a
-            ref={ctaRef}
             href="#contacto"
-            className={`btn-primary ${styles.cta}`}
+            className={`${styles.cta} ${active === "contacto" ? styles.ctaActive : ""}`}
             aria-current={active === "contacto" ? "true" : undefined}
           >
             {t("nav.cta")}
-            <ArrowRight size={16} aria-hidden="true" />
           </a>
-        </nav>
+        </div>
 
-        <div className={styles.actions}>
-          <div className={styles.langToggle} role="group" aria-label={t("lang.groupLabel")}>
-            {["es", "en"].map((code) => (
-              <button
-                key={code}
-                type="button"
-                className={`${styles.langButton} ${lang === code ? styles.langButtonActive : ""}`}
-                aria-pressed={lang === code}
-                onClick={() => setLang(code)}
-              >
-                {code.toUpperCase()}
-              </button>
-            ))}
-          </div>
-
-          <span className={styles.actionDivider} aria-hidden="true" />
-          <button
-            type="button"
-            className={styles.themeToggle}
-            onClick={toggleTheme}
-            aria-label={isLight ? t("theme.toDark") : t("theme.toLight")}
-            aria-pressed={isLight}
-          >
-            {isLight ? (
-              <Sun size={20} aria-hidden="true" />
-            ) : (
-              <Moon size={20} aria-hidden="true" />
-            )}
-          </button>
-
-          <span className={styles.actionDivider} aria-hidden="true" />
+        {/* Móvil / tablet: tema + hamburguesa */}
+        <div className={styles.actionsMobile}>
+          <ThemeButton
+            theme={theme}
+            onToggle={toggleTheme}
+            label={isLight ? t("theme.toDark") : t("theme.toLight")}
+          />
           <button
             ref={toggleRef}
             type="button"
@@ -230,6 +263,7 @@ export default function Header() {
         </div>
       </div>
 
+      {/* Panel desplegable (móvil): enlaces, fila controles, CTA ancho completo */}
       <div
         id="menu-movil"
         ref={panelRef}
@@ -245,7 +279,7 @@ export default function Header() {
                 <li key={item.href}>
                   <a
                     href={item.href}
-                    className={styles.panelLink}
+                    className={`${styles.panelLink} ${isActive ? styles.panelLinkActive : ""}`}
                     aria-current={isActive ? "true" : undefined}
                     onClick={() => setOpen(false)}
                     tabIndex={open ? 0 : -1}
@@ -257,11 +291,22 @@ export default function Header() {
             })}
           </ul>
         </nav>
+
+        <div className={styles.panelControls}>
+          <LangToggle lang={lang} setLang={setLang} groupLabel={t("lang.groupLabel")} />
+          <ThemeButton
+            theme={theme}
+            onToggle={toggleTheme}
+            label={isLight ? t("theme.toDark") : t("theme.toLight")}
+          />
+        </div>
+
         <a
           href="#contacto"
-          className={`btn-primary ${styles.panelCta}`}
+          className={`${styles.panelCta} ${active === "contacto" ? styles.ctaActive : ""}`}
           onClick={() => setOpen(false)}
           tabIndex={open ? 0 : -1}
+          aria-current={active === "contacto" ? "true" : undefined}
         >
           {t("nav.cta")}
           <ArrowRight size={18} aria-hidden="true" />

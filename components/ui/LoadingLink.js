@@ -1,30 +1,84 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { useEffect, useRef } from "react";
 import { useT } from "@/components/i18n/LanguageProvider";
 import { resolveMotion } from "@/lib/motion";
-import { site } from "@/data/site";
-import styles from "./LoadingLink.module.css";
 
-// Enlace de "salida" (proyectos, repositorios, portafolio externo):
-// sigue siendo un <a href> real con SEO y teclado.
-// - Clic izquierdo sin modificadores: muestra un loader compacto de marca
-//   (~1 s, "Abriendo proyecto…") y navega en la MISMA pestaña.
-// - Ctrl/Cmd/Shift/Alt o clic medio: comportamiento nativo, sin animación.
-// - Decisión de movimiento: sin movimiento, navegación inmediata.
-// - NO usar en anclas internas (#sección).
-export default function LoadingLink({ href, children, className = "", ...rest }) {
+// Enlace de "salida" (proyectos, repositorios, portafolio externo).
+// Sigue siendo un <a href> real: SEO, teclado, Ctrl/Cmd+clic nativo.
+//
+// Clic izquierdo sin modificadores:
+//   1. preventDefault
+//   2. escribe el texto y --nav-accent en el overlay #nav-loader (global,
+//      hijo de body, CSS-first, oculto por defecto);
+//   3. añade la clase nav-loading a <html> (display:none → flex reinicia
+//      las animaciones del orbital + barra de progreso; un reflow fuerza el
+//      reinicio aunque la clase ya estuviera presente);
+//   4. navega en la MISMA pestaña cuando la barra completa (animationend)
+//      o, como techo, a los 2,2 s.
+// Ctrl/Cmd/Shift/Alt o clic medio: comportamiento nativo, sin overlay.
+// Sin movimiento permitido (o prefers-reduced-motion): navegación inmediata.
+//
+// bfcache: pageshow (persisted) / visibilitychange → quita nav-loading.
+// Failsafe: 5 s con la clase puesta → se retira.
+export default function LoadingLink({ href, children, className = "", label, accent, ...rest }) {
   const { t } = useT();
-  const [opening, setOpening] = useState(false);
-  const timerRef = useRef(null);
+  const preconnected = useRef(false);
+  const fallbackRef = useRef(null);
+  const failsafeRef = useRef(null);
 
-  useEffect(
-    () => () => {
-      if (timerRef.current) window.clearTimeout(timerRef.current);
-    },
-    [],
-  );
+  useEffect(() => {
+    const clear = () => {
+      const html = document.documentElement;
+      html.classList.remove("nav-loading");
+      html.style.removeProperty("--nav-accent");
+      if (failsafeRef.current) {
+        window.clearTimeout(failsafeRef.current);
+        failsafeRef.current = null;
+      }
+      const overlay = document.getElementById("nav-loader");
+      if (overlay) overlay.setAttribute("aria-hidden", "true");
+    };
+
+    const onPageShow = (event) => {
+      if (event.persisted) clear();
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") clear();
+    };
+    const onKeyDown = (event) => {
+      if (event.key === "Escape" && document.documentElement.classList.contains("nav-loading")) {
+        event.preventDefault();
+        clear();
+      }
+    };
+
+    window.addEventListener("pageshow", onPageShow);
+    document.addEventListener("visibilitychange", onVisibility);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      document.removeEventListener("visibilitychange", onVisibility);
+      document.removeEventListener("keydown", onKeyDown);
+      if (fallbackRef.current) window.clearTimeout(fallbackRef.current);
+      if (failsafeRef.current) window.clearTimeout(failsafeRef.current);
+    };
+  }, []);
+
+  // Preconexión: un único <link rel="preconnect"> del origen de destino
+  const handlePreconnect = () => {
+    if (preconnected.current) return;
+    preconnected.current = true;
+    try {
+      const origin = new URL(href, window.location.href).origin;
+      const link = document.createElement("link");
+      link.rel = "preconnect";
+      link.href = origin;
+      document.head.appendChild(link);
+    } catch {
+      // URL inválida: sin preconexión, nada más
+    }
+  };
 
   const handleClick = (event) => {
     const modified =
@@ -38,40 +92,69 @@ export default function LoadingLink({ href, children, className = "", ...rest })
       return;
     }
 
-    document.body.style.overflow = "hidden";
-    setOpening(true);
-    timerRef.current = window.setTimeout(() => {
+    const html = document.documentElement;
+    const overlay = document.getElementById("nav-loader");
+    if (!overlay) {
       window.location.assign(href);
-    }, 950);
+      return;
+    }
+
+    const labelEl = overlay.querySelector("[data-nav-label]");
+    const domainEl = overlay.querySelector("[data-nav-domain]");
+    const progressEl = overlay.querySelector("[data-nav-progress]");
+
+    if (labelEl) {
+      labelEl.textContent = t("loading.openingProject").replace(
+        "{name}",
+        label ?? "",
+      );
+    }
+    if (domainEl) {
+      try {
+        domainEl.textContent = new URL(href, window.location.href).hostname.replace(/^www\./, "");
+      } catch {
+        domainEl.textContent = href;
+      }
+    }
+    html.style.setProperty("--nav-accent", accent || "#2f7bff");
+
+    // Reiniciar las animaciones: retirar la clase → reflow → añadirla
+    html.classList.remove("nav-loading");
+    void html.offsetHeight;
+    html.classList.add("nav-loading");
+    overlay.setAttribute("aria-hidden", "false");
+
+    const navigate = () => {
+      if (fallbackRef.current) {
+        window.clearTimeout(fallbackRef.current);
+        fallbackRef.current = null;
+      }
+      window.location.assign(href);
+    };
+
+    if (progressEl) {
+      progressEl.addEventListener("animationend", navigate, { once: true });
+    }
+    fallbackRef.current = window.setTimeout(navigate, 2200);
+
+    // Failsafe: si por lo que sea la clase sigue tras 5 s, se retira
+    failsafeRef.current = window.setTimeout(() => {
+      html.classList.remove("nav-loading");
+      html.style.removeProperty("--nav-accent");
+      overlay.setAttribute("aria-hidden", "true");
+    }, 5000);
   };
 
   return (
-    <>
-      <a href={href} className={className} onClick={handleClick} {...rest}>
-        {children}
-      </a>
-
-      {opening ? (
-        <div
-          className={styles.overlay}
-          role="status"
-          aria-live="polite"
-          aria-label={t("loading.opening")}
-        >
-          <div className={styles.emblemWrap}>
-            <Image
-              src={site.logo ?? "/logo.jpeg"}
-              alt=""
-              width={72}
-              height={72}
-              sizes="72px"
-              className={styles.emblem}
-              priority
-            />
-          </div>
-          <p className={styles.label}>{t("loading.opening")}</p>
-        </div>
-      ) : null}
-    </>
+    <a
+      href={href}
+      className={className}
+      onClick={handleClick}
+      onPointerEnter={handlePreconnect}
+      onFocus={handlePreconnect}
+      {...rest}
+    >
+      {children}
+    </a>
   );
 }

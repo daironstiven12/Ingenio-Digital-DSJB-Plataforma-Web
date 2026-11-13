@@ -55,16 +55,40 @@ export default function Specializations() {
             <Reveal
               as="article"
               id="area-software"
-              className={`${styles.cell} ${styles.cellWide} spotlight`}
+              data-area={first.id}
+              tabIndex={0}
+              className={`${styles.cell} ${styles.cellWide} ${styles[`cell_${first.id}`]} spotlight`}
               y={26}
               delay={0.08}
               onPointerMove={spotlight}
+              onPointerEnter={() =>
+                window.dispatchEvent(
+                  new CustomEvent("ingenio:orbital-highlight", { detail: { area: first.id } }),
+                )
+              }
+              onPointerLeave={() =>
+                window.dispatchEvent(
+                  new CustomEvent("ingenio:orbital-highlight", { detail: {} }),
+                )
+              }
+              onFocus={() =>
+                window.dispatchEvent(
+                  new CustomEvent("ingenio:orbital-highlight", { detail: { area: first.id } }),
+                )
+              }
+              onBlur={() =>
+                window.dispatchEvent(
+                  new CustomEvent("ingenio:orbital-highlight", { detail: {} }),
+                )
+              }
             >
               <div className={styles.cellHead}>
-                {(() => {
-                  const Icon = icons[first.id] ?? Code2;
-                  return <Icon size={22} aria-hidden="true" />;
-                })()}
+                <span className={styles.cellIconWrap}>
+                  {(() => {
+                    const Icon = icons[first.id] ?? Code2;
+                    return <Icon size={22} aria-hidden="true" />;
+                  })()}
+                </span>
                 <span className={styles.cellIndex}>01</span>
               </div>
               <h3 className={styles.cellTitle} id={`texto-${first.id}`}>{first.title}</h3>
@@ -80,13 +104,37 @@ export default function Specializations() {
                 as="article"
                 key={area.id}
                 id={`area-${area.id}`}
-                className={`${styles.cell} spotlight`}
+                data-area={area.id}
+                tabIndex={0}
+                className={`${styles.cell} ${styles[`cell_${area.id}`]} spotlight`}
                 y={26}
                 delay={(index + 2) * 0.08}
                 onPointerMove={spotlight}
+                onPointerEnter={() =>
+                  window.dispatchEvent(
+                    new CustomEvent("ingenio:orbital-highlight", { detail: { area: area.id } }),
+                  )
+                }
+                onPointerLeave={() =>
+                  window.dispatchEvent(
+                    new CustomEvent("ingenio:orbital-highlight", { detail: {} }),
+                  )
+                }
+                onFocus={() =>
+                  window.dispatchEvent(
+                    new CustomEvent("ingenio:orbital-highlight", { detail: { area: area.id } }),
+                  )
+                }
+                onBlur={() =>
+                  window.dispatchEvent(
+                    new CustomEvent("ingenio:orbital-highlight", { detail: {} }),
+                  )
+                }
               >
                 <div className={styles.cellHead}>
-                  <Icon size={22} aria-hidden="true" />
+                  <span className={styles.cellIconWrap}>
+                    <Icon size={22} aria-hidden="true" />
+                  </span>
                   <span className={styles.cellIndex}>{number}</span>
                 </div>
                 <h3 className={styles.cellTitle}>{area.title}</h3>

@@ -4,6 +4,7 @@
 
 .grid {
   display: grid;
+  grid-auto-rows: 1fr;
   gap: var(--space-5);
   grid-template-columns: 1fr;
   margin-top: var(--space-7);
@@ -12,50 +13,245 @@
 @media (min-width: 768px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-6);
+    gap: var(--space-5);
   }
 }
 
 .card {
   display: flex;
   flex-direction: column;
-  background: var(--color-raised);
+  height: 100%;
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   overflow: hidden;
   transition:
-    box-shadow var(--duration-fast) var(--ease-out),
-    transform var(--duration-fast) var(--ease-out);
+    transform var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .card:hover {
-  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
 }
 
 .cardMedia {
   position: relative;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-3);
-  background: var(--color-surface);
   overflow: hidden;
-  border-bottom: 1px dashed var(--color-border-strong);
+  background: var(--color-raised);
 }
 
 .cardImg {
   object-fit: cover;
+  object-position: top center;
+  transition: transform 420ms var(--ease-out);
 }
 
+.cardMedia:hover .cardImg,
+.cardMedia:focus-visible .cardImg {
+  transform: scale(1.03);
+}
+
+.cardScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.64) 0%, rgba(0, 0, 0, 0.18) 38%, transparent 70%);
+  pointer-events: none;
+}
+
+.cardArrow {
+  position: absolute;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  color: rgba(255, 255, 255, 0.92);
+  opacity: 0;
+  transform: translate(-6px, 6px);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+  pointer-events: none;
+}
+
+.cardMedia:hover .cardArrow,
+.cardMedia:focus-visible .cardArrow {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+.cardInitials {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.4);
+}
+
+.liveChip {
+  position: absolute;
+  bottom: var(--space-3);
+  left: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #052e16;
+  background: #86efac;
+  border-radius: var(--radius-full);
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #166534;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  flex: 1;
+  min-height: 0;
+}
+
+.cardArea {
+  color: var(--color-text-muted);
+}
+
+.cardTitle {
+  font-size: var(--fs-h3);
+  color: var(--color-text);
+  line-height: 1.25;
+}
+
+.cardText {
+  font-size: var(--fs-small);
+  color: var(--color-text-secondary);
+  line-height: 1.65;
+  min-height: calc(2 * 1.65 * 0.875rem);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-top: auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.cardHost {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.cardCta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--color-primary);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--duration-micro) var(--ease-out);
+  flex-shrink: 0;
+}
+
+.cardCta:hover {
+  background: var(--color-primary-hover);
+}
+
+.cardPending {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* Guía de los tres estados (solo cuando no hay proyectos publicados) */
+.stateGuide {
+  margin-top: var(--space-9);
+}
+
+.stateGuideKicker {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-5);
+}
+
+.stateGuideGrid {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+}
+
+.stateCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-5);
+  background: var(--color-raised);
+  border: 1px solid var(--color-border);
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+}
+
+.stateCard_blue { border-left-color: #2f7bff; }
+.stateCard_violet { border-left-color: #7c5cff; }
+.stateCard_cyan { border-left-color: #22d3ee; }
+
+.stateBadge {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+
+.stateTitle {
+  font-size: 1.125rem;
+  color: var(--color-text);
+}
+
+.stateText {
+  font-size: var(--fs-small);
+  color: var(--color-text-secondary);
+  line-height: 1.65;
+}
+
+/* Reserva sin proyectos */
 .slotIcon {
   color: var(--color-text-muted);
 }
@@ -68,59 +264,6 @@
   color: var(--color-text-muted);
 }
 
-.cardBadge {
-  position: absolute;
-  top: var(--space-3);
-  left: var(--space-3);
-}
-
-.cardBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-5);
-  flex: 1;
-}
-
-.cardArea {
-  color: var(--color-text-muted);
-}
-
-.cardTitle {
-  font-size: var(--fs-h3);
-  color: var(--color-text);
-}
-
-.cardText {
-  font-size: var(--fs-small);
-  color: var(--color-text-secondary);
-  flex: 1;
-}
-
-.cardLink {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 44px;
-  font-size: var(--fs-small);
-  font-weight: 600;
-  color: var(--color-cyan);
-}
-
-.cardLink:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.cardPending {
-  font-family: var(--font-mono);
-  font-size: var(--fs-mono);
-  color: var(--color-text-muted);
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-}
-
 .note {
   margin-top: var(--space-7);
   padding-top: var(--space-5);
@@ -130,31 +273,7 @@
   color: var(--color-text-secondary);
 }
 
-.note strong {
-  color: var(--color-text);
-}
-
-.cardLinks {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.cardRepo {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 44px;
-  font-size: var(--fs-small);
-  color: var(--color-text-secondary);
-  transition: color var(--duration-micro) var(--ease-out);
-}
-
-.cardRepo:hover {
-  color: var(--color-text);
-}
-
-/* Tarjeta DEMO (solo desarrollo) */
+/* DEMO solo desarrollo */
 .demoCard {
   border-style: dashed;
   border-color: var(--color-warning);
@@ -162,8 +281,8 @@
 
 .demoBadge {
   position: absolute;
-  bottom: var(--space-3);
-  left: var(--space-3);
+  top: var(--space-3);
+  right: var(--space-3);
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   font-weight: 500;

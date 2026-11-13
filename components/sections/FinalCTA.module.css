@@ -7,11 +7,11 @@
   justify-content: center;
 }
 
-/* Tarjeta centrada de contraste (la única banda de contraste de la página) */
+/* Tarjeta de contraste (la única banda de contraste de la página) */
 .card {
   position: relative;
-  max-width: 780px;
-  padding: var(--space-8) var(--space-6);
+  width: min(100%, 780px);
+  padding: var(--space-8) var(--space-5);
   background: var(--color-cta-card);
   border: 1px solid var(--color-cta-border);
   border-radius: var(--radius-xl);
@@ -20,7 +20,6 @@
   text-align: center;
 }
 
-/* Acento degradado azul → violeta sobre la tarjeta */
 .card::before {
   content: "";
   position: absolute;
@@ -46,26 +45,9 @@
   color: var(--color-cta-secondary);
 }
 
-.actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-4);
-  margin-top: var(--space-7);
-}
-
-.primary,
-.secondary {
-  min-height: 56px;
-  padding: var(--space-4) var(--space-6);
-}
-
-.secondary {
-  color: var(--color-cta-text);
-  --btn-fill: color-mix(in srgb, var(--color-cta-text) 12%, transparent);
-}
-
 .pending {
+  margin-top: var(--space-7);
+  display: inline-block;
   padding: var(--space-4) var(--space-5);
   font-family: var(--font-mono);
   font-size: var(--fs-mono);
@@ -77,10 +59,267 @@
   max-width: 52ch;
 }
 
-@media (min-width: 480px) {
-  .actions {
-    flex-direction: row;
-    flex-wrap: wrap;
+/* ===== Hub: dos columnas (copiar | compositor) ===== */
+.hub {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .hub {
+    grid-template-columns: 5fr 6fr;
+    gap: var(--space-7);
+    align-items: start;
+  }
+}
+
+.hubCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.hubCopy .title {
+  max-width: 16ch;
+}
+
+.hubCopy .lead {
+  margin: 0;
+  max-width: 46ch;
+}
+
+/* Canales */
+.channels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+.channelCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 64px;
+  padding: var(--space-3) var(--space-4);
+  background: color-mix(in srgb, var(--color-cta-text) 5%, transparent);
+  border: 1px solid var(--color-cta-border);
+  border-radius: var(--radius-md);
+  color: var(--color-cta-text);
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+a.channelCard:hover {
+  background: color-mix(in srgb, var(--color-cta-text) 9%, transparent);
+  border-color: var(--color-cta-text);
+}
+
+.channelCardStatic {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 64px;
+  padding: var(--space-3) var(--space-4);
+  background: color-mix(in srgb, var(--color-cta-text) 5%, transparent);
+  border: 1px solid var(--color-cta-border);
+  border-radius: var(--radius-md);
+  color: var(--color-cta-text);
+}
+
+.channelIcon {
+  color: var(--color-cyan-text);
+  flex-shrink: 0;
+}
+
+.channelText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  text-align: left;
+}
+
+.channelName {
+  font-weight: 600;
+  font-size: var(--fs-small);
+}
+
+.channelHint {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-cta-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.socialRow {
+  display: inline-flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.socialIconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--color-cta-text);
+  border: 1px solid var(--color-cta-border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--duration-micro) var(--ease-out);
+}
+
+.socialIconButton:hover {
+  border-color: var(--color-cta-text);
+}
+
+/* ===== Compositor ===== */
+.composer {
+  min-width: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: var(--color-cta-card);
+  border: 1px solid var(--color-cta-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  position: relative;
+}
+
+.fieldLabel {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-cta-secondary);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-body);
+  color: var(--color-cta-text);
+  background: color-mix(in srgb, var(--color-cta-text) 4%, transparent);
+  border: 1px solid var(--color-cta-border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--duration-micro) var(--ease-out);
+}
+
+.input:focus-visible,
+.textarea:focus-visible {
+  border-color: var(--color-cyan-text);
+  outline: none;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 132px;
+}
+
+.counter {
+  position: absolute;
+  bottom: var(--space-3);
+  right: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--color-cta-secondary);
+  pointer-events: none;
+}
+
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.sendWhatsApp,
+.sendEmail,
+.copyEmail {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-micro) var(--ease-out),
+    border-color var(--duration-micro) var(--ease-out),
+    color var(--duration-micro) var(--ease-out);
+}
+
+.sendWhatsApp {
+  color: #052e16;
+  background: #25d366;
+  border: 1px solid transparent;
+}
+
+.sendWhatsApp:hover {
+  background: #2be17a;
+}
+
+.sendEmail {
+  color: #ffffff;
+  background: var(--color-primary);
+  border: 1px solid transparent;
+}
+
+.sendEmail:hover {
+  background: var(--color-primary-hover);
+}
+
+.copyEmail {
+  color: var(--color-cta-text);
+  background: transparent;
+  border: 1px solid var(--color-cta-border);
+}
+
+.copyEmail:hover {
+  border-color: var(--color-cta-text);
+}
+
+.sendDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.microcopy {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  color: var(--color-cta-secondary);
+}
+
+@media (max-width: 479px) {
+  .form {
+    padding: var(--space-4);
+  }
+
+  .sendWhatsApp,
+  .sendEmail,
+  .copyEmail {
+    flex: 1 1 auto;
     justify-content: center;
   }
 }

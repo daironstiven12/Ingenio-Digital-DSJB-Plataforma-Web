@@ -131,3 +131,41 @@
   color: var(--color-text-secondary);
   max-width: 52ch;
 }
+
+/* ===== Glow por área (coherente con el orbital del hero) ===== */
+
+.cell_software { --area-tint: #2f7bff; --area-fill: rgba(47, 123, 255, 0.16); }
+.cell_arquitectura { --area-tint: #7c5cff; --area-fill: rgba(124, 92, 255, 0.16); }
+.cell_redes { --area-tint: #22d3ee; --area-fill: rgba(34, 211, 238, 0.14); }
+.cell_electronica { --area-tint: #19e3d0; --area-fill: rgba(25, 227, 208, 0.14); }
+.cell_formacion { --area-tint: #ffb454; --area-fill: rgba(255, 180, 84, 0.16); }
+
+.cellIconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  color: var(--color-electric);
+  background: transparent;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.cell:hover .cellIconWrap,
+.cell:focus-visible .cellIconWrap,
+.cell:focus-within .cellIconWrap {
+  background: var(--area-fill);
+  color: var(--area-tint);
+}
+
+.cell:hover,
+.cell:focus-visible,
+.cell:focus-within {
+  border-color: color-mix(in srgb, var(--area-tint) 55%, var(--color-border-strong));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--area-tint) 35%, transparent),
+    0 14px 44px -14px color-mix(in srgb, var(--area-tint) 55%, transparent);
+}
