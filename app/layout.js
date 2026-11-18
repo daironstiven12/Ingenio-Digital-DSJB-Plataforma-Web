@@ -125,15 +125,14 @@ const themeInit = `(function(){
   else if(mo==="off"){allowed=false;reason="forced-off";}
   else{try{if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){allowed=false;reason="reduced-motion";}}catch(e){}}
   if(!allowed){document.documentElement.classList.add("motion-off");}
-  var force=/[?&]intro=1/.test(q),off=/[?&]intro=0/.test(q),seen=false;
-  try{var raw=window.localStorage.getItem("ingenio-intro");if(raw){try{var d=JSON.parse(raw);if(d&&typeof d.t==="number"&&(Date.now()-d.t)<2592000000){seen=true;}}catch(e){}}}catch(e){}
-  var decision="skip",decReason=reason;
+  /* Intro SIEMPRE en cada carga (orden del dueño): solo lo saltan
+     prefers-reduced-motion (respeto al sistema) o ?intro=0 (override de prueba).
+     ?intro=1 fuerza el intro incluso con reduced-motion (override de prueba). */
+  var force=/[?&]intro=1/.test(q),off=/[?&]intro=0/.test(q);
+  var decision="show",decReason="always";
   if(off){decision="skip";decReason="param";}
-  else if(force){decision="show";decReason="param";}
-  else if(!allowed&&force){allowed=true;reason="param";document.documentElement.classList.remove("motion-off");decision="show";decReason="param";}
+  else if(force){allowed=true;reason="param";document.documentElement.classList.remove("motion-off");decision="show";decReason="param";}
   else if(!allowed){decision="skip";decReason=reason;}
-  else if(seen){decision="skip";decReason="seen";}
-  else{decision="show";decReason="fresh";}
   if(decision==="show"){document.documentElement.classList.add("intro-on");try{document.documentElement.classList.add("scroll-locked");}catch(e){}}
   /* IMPORTANTE: los failsafes NO tocan atributos de los overlays React.
      Las clases en <html> sobran: los overlays vuelven a display:none sin
@@ -174,29 +173,27 @@ const organizationJsonLd = {
   ],
 };
 
-// Script de cierre del intro: quita la clase pre-pintada, restaura el
-// scroll, marca la visita solo al terminar/saltar. Failsafe ~3.2 s.
+// Script de cierre del intro: quita la clase pre-pintada y libera el
+// scroll al terminar o saltar (no hay marca de "visto": se muestra siempre).
 const introExitScript = `(function(){
   var root=document.documentElement;
-  function end(seen){
+  function end(){
     if(!root.classList.contains("intro-on"))return;
     if(root.classList.contains("intro-done"))return;
     root.classList.add("intro-done");
     root.classList.remove("intro-on");
     try{document.documentElement.classList.remove("scroll-locked");}catch(e){}
-    try{if(seen){window.localStorage.setItem("ingenio-intro",JSON.stringify({t:Date.now()}));}}catch(e){}
     var m=document.getElementById("contenido");
     if(m){try{m.focus({preventScroll:true});}catch(e){}}
   }
   var skip=document.querySelector("[data-intro-skip]");
-  if(skip){skip.addEventListener("click",function(){end(true);});}
-  document.addEventListener("keydown",function(e){if(e.key==="Escape"){end(true);}});
+  if(skip){skip.addEventListener("click",function(){end();});}
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"){end();}});
   var overlay=document.getElementById("intro");
-  if(!overlay){end(false);return;}
+  if(!overlay){end();return;}
   overlay.addEventListener("animationend",function(e){
     if(e.target!==overlay)return;
-    if(e.animationName==="introExit"){end(true);}
-    else if(e.animationName==="introFailsafe"){end(false);}
+    end();
   });
 })();`;
 
