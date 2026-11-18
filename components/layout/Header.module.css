@@ -30,16 +30,17 @@
   border-bottom: 1px solid color-mix(in srgb, var(--color-border) 40%, transparent);
 }
 
-/* Contenedor del header: más ancho que el contenido (1280 vs 1120) */
+/* Contenedor del header: MISMO eje que .container (min(92%, --container-max)
+   + --container-pad) para que navbar y contenido compartan alineación. */
 .inner {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
   column-gap: 32px;
-  width: 100%;
-  max-width: 1280px;
+  width: min(92%, var(--container-max));
+  max-width: 100%;
   margin-inline: auto;
-  padding-inline: 24px;
+  padding-inline: var(--container-pad);
   min-height: 64px;
 }
 

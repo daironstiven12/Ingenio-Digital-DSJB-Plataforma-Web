@@ -47,6 +47,7 @@
 
   --shadow-sm: 0 1px 2px rgba(4, 4, 20, 0.5);
   --shadow-md: 0 12px 32px rgba(4, 4, 20, 0.55);
+  --shadow-lg: 0 24px 56px rgba(4, 4, 20, 0.6);
 
   /* Pie (oscuro: capa más profunda; el CTA índigo queda encima de él) */
   --color-footer-bg: #060714;
@@ -102,6 +103,7 @@
 
   --shadow-sm: 0 1px 2px rgba(20, 21, 58, 0.08);
   --shadow-md: 0 12px 32px rgba(20, 21, 58, 0.12);
+  --shadow-lg: 0 24px 56px rgba(20, 21, 58, 0.16);
 
   /* Pie (claro: bloque luminoso con borde superior) */
   --color-footer-bg: #ffffff;
@@ -145,9 +147,12 @@
   --space-10: 128px;
   --space-11: 160px;
 
-  --container-max: 1120px;
+  /* Contenedor único: min(92%, --container-max) en .container y en el navbar.
+     92 % y el tope de 1500 px coinciden hasta ~1630 px de viewport; por encima
+     manda el tope (decisión de diseño: ancho máximo cercano a 1500 px). */
+  --container-max: 1500px;
   --container-wide: 1360px;
-  --container-pad: clamp(20px, 5vw, 48px);
+  --container-pad: clamp(20px, 3.5vw, 32px);
 
   --radius-xs: 6px;
   --radius-sm: 8px;
@@ -243,10 +248,12 @@ p {
 }
 
 /* ===== Transición de tema (Tarea 8) =====
-   Universal con especificidad mínima: cualquier regla de componente
-   sobrescribe propiedades y duraciones propias. */
+   Especificidad 0 gracias a :where(): cualquier regla de componente
+   (una clase = 0,1,0) sobrescribe propiedades y duraciones propias.
+   Sin :where() la especificidad sería 0,1,1 y ANULARÍA los transition
+   de los módulos (transform, box-shadow y opacity dejaban de animar). */
 
-html:not(.motion-off) {
+:where(html:not(.motion-off)) {
   *,
   *::before,
   *::after {
@@ -332,8 +339,10 @@ html.js .reveal-pending {
 /* ===== Utilidades ===== */
 
 .container {
-  width: 100%;
-  max-width: var(--container-max);
+  /* 92 % del ancho disponible con tope de --container-max.
+     Un mismo eje para secciones, navbar y footer (sin desalineación). */
+  width: min(92%, var(--container-max));
+  max-width: 100%;
   margin-inline: auto;
   padding-inline: var(--container-pad);
 }

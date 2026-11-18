@@ -2,7 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  max-width: 720px;
+  /* Escala con el contenedor (1120 → 1500) sin perder medida de lectura */
+  max-width: min(100%, 860px);
 }
 
 .eyebrow {

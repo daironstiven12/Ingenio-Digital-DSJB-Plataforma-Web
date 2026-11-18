@@ -80,7 +80,8 @@
   display: grid;
   gap: var(--space-6);
   align-items: center;
-  width: 100%;
+  /* Sin width: aquí manda .container (min(92%, --container-max));
+     un width:100% propio desalinearía el héroe del resto de secciones. */
 }
 
 @media (min-width: 1024px) {

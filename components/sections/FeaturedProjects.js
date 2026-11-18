@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowUpRight, CircleDashed } from "lucide-react";
+import { ArrowUpRight, CalendarCheck, CircleDashed, Gift, Link2, Recycle, Store } from "lucide-react";
 import LoadingLink from "@/components/ui/LoadingLink";
 import useSpotlight from "@/lib/useSpotlight";
 import { useT } from "@/components/i18n/LanguageProvider";
@@ -31,6 +31,25 @@ function initials(name) {
     .join("");
 }
 
+const projectIcons = {
+  "asistencias-utch": CalendarCheck,
+  "suenos-de-papiro": Gift,
+  "panaderia-la-reina": Store,
+  "binova-ia": Recycle,
+};
+
+function splitAccent(text) {
+  const words = text.split(" ");
+  const last = words.pop();
+  if (!words.length) return text;
+  return (
+    <>
+      {words.join(" ")}{" "}
+      <span className={styles.titleAccent}>{last}</span>
+    </>
+  );
+}
+
 // Tarjeta de proyecto real. Media: imagen si existe en /public/images/projects,
 // degradado del accent con iniciales si no. Sin métricas ni tecnologías inventadas.
 function ProjectCard({ project, t, spotlight }) {
@@ -39,6 +58,7 @@ function ProjectCard({ project, t, spotlight }) {
   const description = item.description ?? "";
   const alt = t("sections.projects.imageAlt").replace("{name}", name);
   const host = hostnameOf(project.url);
+  const Icon = projectIcons[project.id];
 
   return (
     <article className={`${styles.card} spotlight`} onPointerMove={spotlight}>
@@ -48,7 +68,7 @@ function ProjectCard({ project, t, spotlight }) {
             src={project.imageSrc}
             alt={alt}
             fill
-            sizes="(min-width: 768px) 50vw, 100vw"
+            sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
             quality={80}
             loading="lazy"
             className={styles.cardImg}
@@ -70,15 +90,25 @@ function ProjectCard({ project, t, spotlight }) {
           <span className={styles.liveDot} aria-hidden="true" />
           {t("sections.projects.live")}
         </span>
-        <ArrowUpRight size={28} aria-hidden="true" className={styles.cardArrow} />
+        <span className={styles.cardExt} aria-hidden="true">
+          <ArrowUpRight size={18} />
+        </span>
       </div>
 
       <div className={styles.cardBody}>
+        {Icon ? (
+          <span className={styles.projIcon} aria-hidden="true">
+            <Icon size={28} />
+          </span>
+        ) : null}
         <h3 className={styles.cardTitle}>{name}</h3>
         <p className={styles.cardText}>{description}</p>
 
         <div className={styles.cardFooter}>
-          <p className={styles.cardHost}>{host}</p>
+          <div className={styles.cardHostGroup}>
+            <Link2 size={14} aria-hidden="true" className={styles.cardHostIcon} />
+            <p className={styles.cardHost}>{host}</p>
+          </div>
           <LoadingLink
             href={project.url}
             className={styles.cardCta}
@@ -161,7 +191,7 @@ export default function FeaturedProjects({ projects }) {
           <SectionHeading
             index="02"
             kicker={t("sections.projects.kicker")}
-            title={t("sections.projects.title")}
+            title={splitAccent(t("sections.projects.title"))}
             lead={
               hasProjects
                 ? t("sections.projects.leadFilled")

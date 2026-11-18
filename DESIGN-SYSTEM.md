@@ -187,15 +187,23 @@ Base **4 px** (multiplos de 8 para ritmo mayor).
 
 **Contenedores**
 
-- `--container-max: 1280px` (contenido estándar)
-- `--container-wide: 1440px` (media a sangre controlada)
-- `--container-pad: clamp(20px, 5vw, 48px)` (gutter lateral fluido)
+- `--container-max: 1500px` (ancho máximo del contenido)
+- `--container-pad: clamp(20px, 3.5vw, 32px)` (gutter lateral fluido)
+- `.container { width: min(92%, var(--container-max)) }` — un único eje para
+  secciones, navbar (`Header .inner`) y footer: **0 px de desalineación**
+- `--container-wide: 1360px` (reservado; sin uso actual en el código)
 
 **Grid**
 
-- Móvil (<768 px): 4 columnas, gap 16 px
-- Tablet (768–1023 px): 6 columnas, gap 24 px
-- Desktop (≥1024 px): 12 columnas, gap 32 px
+No hay grid global de 4/6/12 columnas: cada sección construye su propia
+rejilla con `grid-template-columns`. El portafolio (`FeaturedProjects`):
+
+- Móvil (<768 px): 1 columna, gap `clamp(20px, 2vw, 28px)`, media 16/10
+- Tablet (≥768 px): 2 columnas (`minmax(0,1fr)`), media 4/3
+- Desktop (≥1280 px): 3 columnas, media 4/3
+
+> Solo se muestran los proyectos existentes en `data/projects.js`; el grid
+> no incluye tarjetas de relleno ni contenido adicional.
 
 ---
 
@@ -268,12 +276,14 @@ Alto mínimo 44 px (objetivo táctil WCAG 2.5.8). Radio `--radius-sm`. Peso 600.
 
 ### 8.1 Breakpoints (mobile-first)
 
-| Alias | Ancho | Ajustes |
-|---|---|---|
-| `--bp-sm` | 480 px | gaps +8 px, tipografía fluida intermedia |
-| `--bp-md` | 768 px | grid 6 col, nav pasa de menú a barra, Bento 2 col |
-| `--bp-lg` | 1024 px | grid 12 col, nav horizontal completa, Bento asimétrico |
-| `--bp-xl` | 1280 px | contenedor completo, escala display al máximo |
+No existen variables `--bp-*`; los media queries usan valores crudos:
+
+| Ancho | Ajustes |
+|---|---|
+| 768 px | Proyectos: 1 → 2 columnas (minmax(0,1fr)); Bento 2 col |
+| 1024 px | Nav horizontal completa, grids asimétricos (Hero, ValueProp, FinalCTA) |
+| 1240 px | Header: entra la navegación completa (antes hamburguesa) |
+| 1280 px | Proyectos: 2 → 3 columnas por fila |
 
 ### 8.2 Comportamiento por componente
 
@@ -282,7 +292,7 @@ Alto mínimo 44 px (objetivo táctil WCAG 2.5.8). Radio `--radius-sm`. Peso 600.
 | **Navegación** | Hamburguesa → panel a pantalla completa con targets ≥44 px, cierre con Escape, foco atrapado | Barra horizontal compacta | Barra completa: logo + 7 enlaces + CTA; sticky con blur al hacer scroll; sección actual resaltada (subrayado cian) |
 | **Héroe** | Texto arriba, media abajo (aspect 4:3), CTAs apilados a ancho completo | Split 50/50 | Composición asimétrica 7/5; media con `next/image` + `sizes` |
 | **Bento Grid** | 1 columna, orden por prioridad (nunca scroll horizontal) | 2 columnas | 12 col con spans asimétricos (p. ej. 8+4, 4+4+4, 6+6) |
-| **Proyectos** | 1 tarjeta/col; imagen `aspect-ratio: 4/3` | 2 col | 3 col o lista editorial destacada |
+| **Proyectos** | 1 tarjeta/col; imagen 16/10 | 2 col, imagen 4/3 | 3 col, imagen 4/3 |
 | **Profesionales** | 1 col (retrato 4:5 + nombre/rol) | 2 col | 3–4 col |
 | **Tablas/datos** | scroll horizontal contenedor con `tabindex` y label ARIA | parcial | completo |
 | **Tipografía** | `clamp` crece sin saltos | idem | idem |

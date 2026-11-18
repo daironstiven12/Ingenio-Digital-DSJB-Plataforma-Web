@@ -1,19 +1,103 @@
 .section {
   padding-block: var(--section-y);
+  position: relative;
+  isolation: isolate;
+  --color-band-alt: #0c0a1c;
+  --color-surface: rgba(255, 255, 255, 0.05);
+  --color-border: rgba(167, 139, 250, 0.2);
+  --color-border-strong: rgba(167, 139, 250, 0.5);
+  --color-focus: #a78bfa;
+  --color-primary: #8b5cf6;
+  --color-on-accent: #ffffff;
+  --shadow-lg: 0 26px 54px -30px rgba(88, 28, 235, 0.65), 0 0 0 1px rgba(167, 139, 250, 0.3);
+  --pf-cta: linear-gradient(120deg, #4c1d95 0%, #7c3aed 100%);
+  --pf-cta-glow: 0 10px 26px -8px rgba(124, 92, 255, 0.5);
+  --pf-edge: inset 0 1px 0 rgba(167, 139, 250, 0.22);
+  --pf-glow: radial-gradient(1000px 560px at 12% -8%, rgba(124, 92, 255, 0.18), transparent 62%),
+    radial-gradient(920px 600px at 92% 108%, rgba(88, 28, 235, 0.16), transparent 58%);
+  --pf-accent: #a78bfa;
+  --pf-rule: linear-gradient(90deg, #7c5cff 0%, #a78bfa 100%);
+  --pf-ext-bg: rgba(10, 11, 30, 0.6);
+  box-shadow: var(--pf-edge);
+}
+
+.section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--pf-glow);
+}
+
+:global([data-theme="light"]) .section {
+  --color-band-alt: #f3f1ff;
+  --color-surface: #ffffff;
+  --color-border: rgba(124, 58, 237, 0.16);
+  --color-border-strong: rgba(124, 58, 237, 0.42);
+  --color-focus: #4f46e5;
+  --color-primary: #4f46e5;
+  --shadow-lg: 0 24px 48px -30px rgba(124, 58, 237, 0.4);
+  --pf-cta: var(--gradient-brand-strong);
+  --pf-cta-glow: 0 10px 26px -8px rgba(79, 70, 229, 0.45);
+  --pf-edge: inset 0 1px 0 rgba(124, 58, 237, 0.14);
+  --pf-glow: radial-gradient(900px 520px at 14% -6%, rgba(124, 58, 237, 0.07), transparent 62%),
+    radial-gradient(880px 560px at 90% 106%, rgba(37, 99, 235, 0.06), transparent 58%);
+  --pf-accent: #6d28d9;
+  --pf-rule: linear-gradient(90deg, #7c3aed 0%, #8b5cf6 100%);
+  --pf-ext-bg: rgba(255, 255, 255, 0.86);
+}
+
+.section :global(.section-title) {
+  font-size: clamp(2rem, 3.6vw, 3rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+@media (min-width: 768px) {
+  .section :global(.section-title) {
+    min-height: 1.08em;
+  }
+}
+
+.section h2 + span {
+  margin-top: var(--space-1);
+  background: var(--pf-rule);
+}
+
+.section :global(.section-lead) {
+  margin-top: var(--space-4);
+}
+
+.titleAccent {
+  color: var(--pf-accent);
 }
 
 .grid {
   display: grid;
   grid-auto-rows: 1fr;
-  gap: var(--space-5);
-  grid-template-columns: 1fr;
+  gap: clamp(20px, 2vw, 28px);
+  /* minmax(0, 1fr): sin esto, 1fr = minmax(auto,1fr) y el hostname en
+     nowrap de .cardHost fuerza el ancho mínimo de la columna → la tarjeta
+     desbordaba el contenedor en móvil y quedaba recortada por .page-shell. */
+  grid-template-columns: minmax(0, 1fr);
   margin-top: var(--space-7);
 }
 
+/* 1 columna en móvil */
 @media (min-width: 768px) {
   .grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-5);
+    /* minmax(0, 1fr): el contenido (hostname en nowrap) no puede
+       ensanchar una columna y desequilibrar la fila. */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Tres proyectos por fila en pantallas grandes */
+@media (min-width: 1280px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -21,9 +105,11 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  position: relative;
+  isolation: isolate;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   transition:
     transform var(--duration-fast) var(--ease-out),
@@ -31,20 +117,49 @@
     box-shadow var(--duration-fast) var(--ease-out);
 }
 
+.card::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 150px;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--color-violet) 14%, transparent),
+    transparent
+  );
+}
+
 .card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
   border-color: var(--color-border-strong);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.card:has(.cardCta:focus-visible) {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-lg);
 }
 
 .cardMedia {
   position: relative;
-  aspect-ratio: 16 / 10;
+  /* 4/3: con 3 columnas la tarjeta se estrecha; la altura extra mantiene
+     (o supera) el tamaño visual de la imagen. Recorta ~17 % de los laterales
+     de la captura, centrado arriba (object-position). */
+  aspect-ratio: 4 / 3;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   background: var(--color-raised);
+}
+
+@media (max-width: 767px) {
+  /* En móvil la tarjeta ocupa todo el ancho: 4/3 sería demasiado alta. */
+  .cardMedia {
+    aspect-ratio: 16 / 10;
+  }
 }
 
 .cardImg {
@@ -65,23 +180,32 @@
   pointer-events: none;
 }
 
-.cardArrow {
+.cardExt {
   position: absolute;
-  bottom: var(--space-4);
-  right: var(--space-4);
-  color: rgba(255, 255, 255, 0.92);
-  opacity: 0;
-  transform: translate(-6px, 6px);
-  transition:
-    opacity var(--duration-fast) var(--ease-out),
-    transform var(--duration-fast) var(--ease-out);
+  top: var(--space-3);
+  right: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  background: var(--pf-ext-bg);
+  border: 1px solid color-mix(in srgb, var(--color-violet) 45%, transparent);
+  backdrop-filter: blur(6px);
   pointer-events: none;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
 }
 
-.cardMedia:hover .cardArrow,
-.cardMedia:focus-visible .cardArrow {
-  opacity: 1;
-  transform: translate(0, 0);
+.card:hover .cardExt,
+.card:has(.cardCta:focus-visible) .cardExt {
+  border-color: color-mix(in srgb, var(--color-violet) 75%, transparent);
+  transform: translate(2px, -2px);
+  box-shadow: 0 8px 18px -10px rgba(88, 28, 235, 0.6);
 }
 
 .cardInitials {
@@ -100,20 +224,22 @@
 
 .liveChip {
   position: absolute;
-  bottom: var(--space-3);
-  left: var(--space-3);
+  bottom: var(--space-4);
+  left: var(--space-4);
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
   font-family: var(--font-mono);
   font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #052e16;
   background: #86efac;
   border-radius: var(--radius-full);
+  box-shadow: 0 6px 18px rgba(4, 4, 20, 0.28);
 }
 
 .liveDot {
@@ -126,10 +252,35 @@
 .cardBody {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-5);
+  gap: var(--space-4);
+  padding: clamp(20px, 1.6vw, 28px);
   flex: 1;
   min-height: 0;
+}
+
+.projIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  width: 58px;
+  height: 58px;
+  border-radius: var(--radius-md);
+  color: var(--color-violet);
+  background: color-mix(in srgb, var(--color-violet) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-violet) 40%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.card:hover .projIcon,
+.card:has(.cardCta:focus-visible) .projIcon {
+  background: color-mix(in srgb, var(--color-violet) 26%, transparent);
+  border-color: color-mix(in srgb, var(--color-violet) 65%, transparent);
+  color: color-mix(in srgb, var(--color-violet) 72%, #ffffff);
 }
 
 .cardArea {
@@ -137,35 +288,61 @@
 }
 
 .cardTitle {
-  font-size: var(--fs-h3);
+  /* Mayor protagonismo para el nombre del proyecto
+     (1.6vw permite llegar a 24px en escritorio; 1.1vw se quedaba en 20px) */
+  font-size: clamp(1.25rem, 1.6vw, 1.5rem);
+  font-weight: 700;
   color: var(--color-text);
-  line-height: 1.25;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+@media (min-width: 768px) {
+  .cardTitle {
+    min-height: 2.4em;
+  }
 }
 
 .cardText {
-  font-size: var(--fs-small);
+  /* Mayor protagonismo para la descripción */
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
   color: var(--color-text-secondary);
-  line-height: 1.65;
-  min-height: calc(2 * 1.65 * 0.875rem);
+  line-height: 1.6;
+  min-height: calc(2 * 1.6 * 0.9375rem);
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 .cardFooter {
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-2);
   margin-top: auto;
   padding-top: var(--space-4);
   border-top: 1px solid var(--color-border);
 }
 
+.cardHostGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.cardHostIcon {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
 .cardHost {
   font-family: var(--font-mono);
-  font-size: var(--fs-mono);
+  font-size: 0.75rem;
   color: var(--color-text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -181,15 +358,28 @@
   padding: 0 var(--space-4);
   font-size: var(--fs-small);
   font-weight: 600;
-  color: #ffffff;
-  background: var(--color-primary);
+  /* Token en vez de #fff: en oscuro #0a0b1e sobre #2f7bff = 5.0:1 (AA),
+     en claro #fff sobre #4f46e5 = 6.3:1. Blanco fijo daba 3.89:1 (AA ❌). */
+  color: var(--color-on-accent);
+  background: var(--pf-cta);
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  transition: background-color var(--duration-micro) var(--ease-out);
+  transition:
+    box-shadow var(--duration-micro) var(--ease-out);
   flex-shrink: 0;
 }
 
 .cardCta:hover {
-  background: var(--color-primary-hover);
+  box-shadow: var(--pf-cta-glow);
+}
+
+.cardCta svg {
+  transition: transform var(--duration-micro) var(--ease-out);
+}
+
+.cardCta:hover svg,
+.cardCta:focus-visible svg {
+  transform: translateX(4px);
 }
 
 .cardPending {
@@ -201,7 +391,7 @@
   min-height: 44px;
 }
 
-/* Guía de los tres estados (solo cuando no hay proyectos publicados) */
+/* Guía de los tres estados (solo cuando no haya proyectos publicados) */
 .stateGuide {
   margin-top: var(--space-9);
 }

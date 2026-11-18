@@ -1,10 +1,48 @@
 .section {
   padding-block: var(--section-y);
+  --color-band: #0d0c22;
+  --color-surface: rgba(255, 255, 255, 0.04);
+  --color-raised: #0a0918;
+  --color-border: rgba(167, 139, 250, 0.18);
+  --color-border-strong: rgba(167, 139, 250, 0.42);
+  --color-text: #f5f6ff;
+  --color-text-secondary: #a8abd0;
+  --color-text-muted: rgba(168, 171, 208, 0.8);
+  --color-electric: #a78bfa;
+  --color-cyan: #22d3ee;
+  --color-focus: #a78bfa;
+  --spotlight-tint: rgba(139, 92, 246, 0.18);
+  color: var(--color-text);
+  background-image:
+    radial-gradient(1100px 640px at 6% -12%, rgba(124, 92, 255, 0.16), transparent 62%),
+    radial-gradient(900px 600px at 98% 112%, rgba(88, 28, 235, 0.14), transparent 58%),
+    linear-gradient(180deg, #0d0c22 0%, #141231 52%, #0f0e29 100%);
+}
+
+.section :global(.section-title) {
+  font-size: clamp(2rem, 3.6vw, 3rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+@media (min-width: 768px) {
+  .section :global(.section-title) {
+    min-height: 1.08em;
+  }
+}
+
+.section h2 + span {
+  margin-top: var(--space-1);
+}
+
+.section :global(.section-lead) {
+  margin-top: var(--space-4);
 }
 
 .grid {
   display: grid;
-  gap: var(--space-4);
+  gap: clamp(16px, 1.6vw, 24px);
   grid-template-columns: 1fr;
   margin-top: var(--space-7);
 }
@@ -19,19 +57,19 @@
     grid-column: span 6;
   }
 
-  .cellWide {
-    grid-column: span 6;
-  }
-
   .cell {
     grid-column: span 3;
+  }
+
+  .cellWide {
+    grid-column: span 6;
   }
 }
 
 @media (min-width: 1024px) {
   .grid {
     grid-template-columns: repeat(12, 1fr);
-    gap: var(--space-4);
+    gap: clamp(16px, 1.6vw, 24px);
   }
 
   .mediaCell {
@@ -58,10 +96,13 @@
 .mediaCell {
   position: relative;
   min-height: 240px;
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(167, 139, 250, 0.3);
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--color-raised);
+  box-shadow:
+    0 0 0 1px rgba(139, 92, 246, 0.1),
+    0 32px 64px -36px rgba(88, 28, 235, 0.55);
 }
 
 @media (min-width: 1024px) {
@@ -72,17 +113,19 @@
 
 .chip {
   position: absolute;
-  left: var(--space-3);
-  bottom: var(--space-3);
+  left: var(--space-4);
+  bottom: var(--space-4);
   z-index: 1;
   padding: var(--space-2) var(--space-3);
-  background: #12132b;
-  border: 1px solid #2a2c5c;
+  background: rgba(9, 8, 24, 0.72);
+  border: 1px solid rgba(167, 139, 250, 0.42);
   border-radius: var(--radius-full);
+  box-shadow: 0 10px 24px -12px rgba(4, 4, 20, 0.8);
+  backdrop-filter: blur(8px);
 }
 
-.chip .eyebrow {
-  color: #f5f6ff;
+.chip :global(.eyebrow) {
+  color: #f0efff;
   letter-spacing: 0.1em;
 }
 
@@ -96,22 +139,57 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 18px 40px -30px rgba(88, 28, 235, 0.5);
   transition:
+    background-color var(--duration-fast) var(--ease-out),
     border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
     transform var(--duration-fast) var(--ease-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .cell:hover {
+    background: rgba(255, 255, 255, 0.06);
     border-color: var(--color-border-strong);
-    transform: perspective(700px) rotateX(2deg) rotateY(-3deg) translateY(-4px);
+    border-color: color-mix(in srgb, var(--area-tint) 55%, transparent);
+    transform: translateY(-4px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 0 0 1px rgba(167, 139, 250, 0.3),
+      0 26px 48px -26px rgba(4, 4, 20, 0.85);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 0 0 1px color-mix(in srgb, var(--area-tint) 32%, transparent),
+      0 26px 48px -26px color-mix(in srgb, var(--area-tint) 50%, transparent);
   }
+}
+
+.cell:focus-visible,
+.cell:focus-within {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--color-border-strong); /* @supports fallback previo */
+  border-color: color-mix(in srgb, var(--area-tint) 55%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 0 1px rgba(167, 139, 250, 0.3), /* @supports fallback previo */
+    0 26px 48px -26px rgba(4, 4, 20, 0.85); /* @supports fallback previo */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 0 1px color-mix(in srgb, var(--area-tint) 32%, transparent),
+    0 26px 48px -26px color-mix(in srgb, var(--area-tint) 50%, transparent);
+}
+
+.cell:focus-visible {
+  border-radius: var(--radius-lg);
 }
 
 .cellHead {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: var(--space-1);
   color: var(--color-electric);
 }
 
@@ -134,11 +212,11 @@
 
 /* ===== Glow por área (coherente con el orbital del hero) ===== */
 
-.cell_software { --area-tint: #2f7bff; --area-fill: rgba(47, 123, 255, 0.16); }
-.cell_arquitectura { --area-tint: #7c5cff; --area-fill: rgba(124, 92, 255, 0.16); }
-.cell_redes { --area-tint: #22d3ee; --area-fill: rgba(34, 211, 238, 0.14); }
-.cell_electronica { --area-tint: #19e3d0; --area-fill: rgba(25, 227, 208, 0.14); }
-.cell_formacion { --area-tint: #ffb454; --area-fill: rgba(255, 180, 84, 0.16); }
+.cell_software { --area-tint: #a78bfa; --area-fill: rgba(167, 139, 250, 0.14); }
+.cell_arquitectura { --area-tint: #c4b5fd; --area-fill: rgba(196, 181, 253, 0.13); }
+.cell_redes { --area-tint: #8b5cf6; --area-fill: rgba(139, 92, 246, 0.16); }
+.cell_electronica { --area-tint: #7c3aed; --area-fill: rgba(124, 92, 237, 0.18); }
+.cell_formacion { --area-tint: #ddd6fe; --area-fill: rgba(221, 214, 254, 0.13); }
 
 .cellIconWrap {
   display: inline-flex;
@@ -146,11 +224,14 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   color: var(--color-electric);
-  background: transparent;
+  background: var(--area-fill);
+  border: 1px solid rgba(167, 139, 250, 0.32);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
   transition:
     background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
     color var(--duration-fast) var(--ease-out);
 }
 
@@ -158,18 +239,7 @@
 .cell:focus-visible .cellIconWrap,
 .cell:focus-within .cellIconWrap {
   background: var(--area-fill);
+  background: color-mix(in srgb, var(--area-tint) 24%, transparent);
+  border-color: color-mix(in srgb, var(--area-tint) 60%, transparent);
   color: var(--area-tint);
-}
-
-.cell:hover,
-.cell:focus-visible,
-.cell:focus-within {
-  border-color: var(--color-border-strong); /* @supports fallback previo */
-  border-color: color-mix(in srgb, var(--area-tint) 55%, var(--color-border-strong));
-  box-shadow:
-    0 0 0 1px var(--color-border-strong), /* @supports fallback previo */
-    0 14px 44px -14px rgba(4, 4, 20, 0.5); /* @supports fallback previo */
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--area-tint) 35%, transparent),
-    0 14px 44px -14px color-mix(in srgb, var(--area-tint) 55%, transparent);
 }
