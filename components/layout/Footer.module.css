@@ -288,3 +288,14 @@
 .footer :focus-visible {
   outline-color: var(--color-focus);
 }
+
+.privacyLink {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--duration-micro) var(--ease-out);
+}
+
+.privacyLink:hover {
+  border-bottom-color: currentColor;
+}

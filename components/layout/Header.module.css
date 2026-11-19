@@ -1,51 +1,93 @@
+/* ===== Header partilado: capa TOP transparente → píldora SCROLLED =====
+   El wrapper conserva SIEMPRE 72px (nada salta); solo cambia la barra
+   interior (.bar). Mismo border-radius en ambos estados (9999px). */
 .header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  inset-inline: 0;
   z-index: 90;
   width: 100%;
-  border-bottom: 1px solid transparent;
-  background-color: var(--color-bg); /* fallback para motores sin color-mix */
-  transition:
-    background-color 200ms var(--ease-out),
-    border-color 200ms var(--ease-out);
+  height: 72px;
+  background: transparent;
+  /* Píldora en estado SCROLLED: min(960px, 100vw-32px) encaja marca +
+     5 enlaces + acciones en ES y EN sin partir texto (medido a 1240-1920px). */
+  --pill-w: min(960px, calc(100vw - 32px));
 }
 
-@supports (color: color-mix(in srgb, red 1%, transparent)) {
-  .header {
-    background-color: transparent;
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 24px;
+  width: 100%;
+  max-width: min(1280px, 100%);
+  height: 72px;
+  margin-top: 0;
+  margin-inline: auto;
+  padding-inline: 24px;
+  border-radius: 9999px;
+  background: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+  color: var(--hero-text); /* texto del color del héroe (TOP) */
+  transition:
+    max-width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    margin-top 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    padding-inline 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Estado SCROLLED (React) / pre-pintado (scrolled-early, sin transición) */
+.scrolled .bar,
+:global(html.scrolled-early) .bar {
+  max-width: var(--pill-w);
+  height: 56px;
+  margin-top: 12px;
+  padding-inline: 18px;
+  column-gap: 12px;
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35); /* oscuro */
+}
+
+:global([data-theme="light"]) .scrolled .bar,
+:global([data-theme="light"] html.scrolled-early) .bar {
+  box-shadow: 0 8px 30px rgba(79, 70, 229, 0.1); /* claro */
+}
+
+/* Pre-pintado: aplicar sin transición para no parpadear en la carga */
+:global(html.scrolled-early) .bar {
+  transition: none;
+}
+
+.scrolled .navList {
+  gap: 18px;
+}
+
+/* Móvil (<1240px, con hamburguesa): píldora más ceñida */
+@media (max-width: 1239px) {
+  .scrolled .bar,
+  :global(html.scrolled-early) .bar {
+    max-width: calc(100% - 24px);
+    height: 52px;
+    margin-top: 8px;
+  }
+
+  .scrolled .panel,
+  :global(html.scrolled-early) .panel {
+    top: 60px; /* 8px de margen + 52px de barra */
   }
 }
 
-.scrolled {
-  background-color: rgba(16, 17, 36, 0.88); /* @supports fallback previo (oscuro) */
-  background-color: color-mix(in srgb, var(--color-bg) 86%, transparent);
-  border-bottom: 1px solid rgba(245, 246, 255, 0.12); /* @supports fallback previo (oscuro) */
-  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 40%, transparent);
-}
-
-:global([data-theme="light"]) .scrolled {
-  background-color: rgba(250, 250, 255, 0.88); /* @supports fallback previo (claro) */
-  background-color: color-mix(in srgb, var(--color-bg) 86%, transparent);
-  border-bottom: 1px solid var(--color-border); /* @supports fallback previo (claro) */
-  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 40%, transparent);
-}
-
-/* Contenedor del header: MISMO eje que .container (min(92%, --container-max)
-   + --container-pad) para que navbar y contenido compartan alineación. */
-.inner {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  column-gap: 32px;
-  width: min(92%, var(--container-max));
-  max-width: 100%;
-  margin-inline: auto;
-  padding-inline: var(--container-pad);
-  min-height: 64px;
-}
-
-.scrolled .inner {
-  min-height: 56px;
+@media (prefers-reduced-motion: reduce) {
+  .bar,
+  .panel {
+    transition-duration: 0.01s !important;
+  }
 }
 
 /* Marca */
@@ -56,7 +98,7 @@
   height: 100%;
   min-height: 44px;
   flex-shrink: 0;
-  color: var(--color-text);
+  color: inherit;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -78,7 +120,7 @@
   font-weight: 650;
   letter-spacing: -0.01em;
   white-space: nowrap;
-  color: var(--color-text);
+  color: inherit;
 }
 
 @media (max-width: 359px) {
@@ -90,7 +132,6 @@
 /* Navegación (escritorio): 15px, gap 28px, no wrap */
 .nav {
   display: none;
-  justify-self: center;
   align-self: center;
   min-width: 0;
 }
@@ -114,7 +155,7 @@
   font-size: 0.9375rem;
   font-weight: 500;
   line-height: 1;
-  color: var(--color-text);
+  color: inherit;
   opacity: 0.78;
   transition:
     opacity var(--duration-micro) var(--ease-out),
@@ -146,7 +187,7 @@
 
 .navLinkActive {
   opacity: 1;
-  color: var(--color-text);
+  color: inherit;
 }
 
 .navLinkActive::after {
@@ -241,7 +282,7 @@
   width: 36px;
   height: 36px;
   padding: 0;
-  color: var(--color-text);
+  color: inherit;
   background: transparent;
   border: none;
   border-radius: var(--radius-sm);
@@ -253,7 +294,7 @@
 
 .iconButton:hover,
 .iconButton:focus-visible {
-  color: var(--color-text);
+  color: inherit;
   background: var(--color-raised);
 }
 
@@ -265,7 +306,7 @@
   padding: 0 14px;
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: inherit;
   background: transparent;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
@@ -295,7 +336,7 @@
   width: 36px;
   height: 36px;
   padding: 0;
-  color: var(--color-text);
+  color: inherit;
   background: transparent;
   border: none;
   border-radius: var(--radius-sm);
@@ -311,7 +352,7 @@
 /* Panel desplegable ancho completo (móvil / tablet) */
 .panel {
   position: fixed;
-  top: 64px;
+  top: 72px;
   left: 0;
   right: 0;
   z-index: 89;
@@ -327,7 +368,8 @@
   transition:
     opacity var(--duration-fast) var(--ease-out),
     transform var(--duration-fast) var(--ease-out),
-    visibility var(--duration-fast);
+    visibility var(--duration-fast),
+    top 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .panelOpen {
@@ -474,4 +516,14 @@
 .motionNoticeDismiss:hover {
   color: var(--color-text);
   border-color: var(--color-border-strong);
+}
+
+/* ===== Destinos del FLIP del intro: ocultos mientras el intro está activo ===== */
+
+:global(html.intro-on) [data-intro-target] {
+  visibility: hidden;
+}
+
+:global(html.intro-done) [data-intro-target] {
+  visibility: visible;
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { resolveMotion } from "@/lib/motion";
+import { waitForIntroDone } from "@/lib/introWait";
 import styles from "./SectionHeading.module.css";
 
 // Encabezado de sección: título revelado línea a línea con máscara
@@ -22,6 +23,8 @@ export default function SectionHeading({ index, kicker, title, lead, id, align =
 
     (async () => {
       try {
+        await waitForIntroDone(6500);
+        if (cancelled) return;
         const { gsap } = await import("gsap");
         const { SplitText } = await import("gsap/SplitText");
         const { ScrollTrigger } = await import("gsap/ScrollTrigger");

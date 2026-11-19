@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { resolveMotion } from "@/lib/motion";
+import { waitForIntroDone } from "@/lib/introWait";
 
 // Revelado al hacer scroll con GSAP — mejora progresiva:
 // - Sin JS, el contenido es visible (globals.css solo oculta bajo html.js).
@@ -76,6 +77,9 @@ export default function Reveal({
 
     (async () => {
       try {
+        // Si el intro está corriendo, las entradas del héroe esperan a intro-done
+        await waitForIntroDone(6500);
+        if (cancelled) return;
         const { gsap } = await import("gsap");
         const { ScrollTrigger } = await import("gsap/ScrollTrigger");
         if (cancelled) return;

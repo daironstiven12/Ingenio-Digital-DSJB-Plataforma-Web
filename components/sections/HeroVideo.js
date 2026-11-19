@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { site } from "@/data/site";
 import { resolveMotion } from "@/lib/motion";
+import { waitForIntroOpening } from "@/lib/introWait";
 import useTheme from "@/lib/useTheme";
 
 // Vídeo de fondo del héroe (circuitos digitales, mismo archivo que el bento,
@@ -13,7 +14,19 @@ export default function HeroVideo() {
   const videoRef = useRef(null);
   const wrapRef = useRef(null);
   const [enabled, setEnabled] = useState(false);
+  const [ready, setReady] = useState(false);
   const theme = useTheme();
+
+  // El vídeo no compite durante el intro: espera a la apertura +150 ms
+  useEffect(() => {
+    let alive = true;
+    waitForIntroOpening(150).then(() => {
+      if (alive) setReady(true);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     const wide = window.matchMedia("(min-width: 768px)");
@@ -25,6 +38,7 @@ export default function HeroVideo() {
     const update = () =>
       setEnabled(
         site.media?.heroVideo === true &&
+          ready &&
           theme === "dark" &&
           wide.matches &&
           motion.allowed &&
@@ -36,7 +50,7 @@ export default function HeroVideo() {
     return () => {
       wide.removeEventListener("change", update);
     };
-  }, [theme]);
+  }, [theme, ready]);
 
   // Pausar cuando el héroe sale del viewport
   useEffect(() => {

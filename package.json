@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:inline": "node scripts/check-inline-scripts.mjs",
+    "test:contact": "node scripts/test-contact-api.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.1",

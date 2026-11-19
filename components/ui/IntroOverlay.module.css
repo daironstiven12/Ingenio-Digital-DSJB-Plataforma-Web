@@ -1,98 +1,620 @@
-/* Intro CSS-first. Gate de visibilidad vía <html class="intro-on"> decidida
-   por el script inline de <head> ANTES del primer pintado.
-   Las clases del emblema orbital compartido viven en OrbitEmblem.css
-   (CSS global, sin hash) — así OrbitEmblem es usable por el intro y por
-   el Loader #nav-loader sin romperse por el hash de CSS Modules. */
-
-/* ===== Gate ===== */
+/* Intro V5 "Órbita que enciende" — CSS-first.
+   Solo transform y opacity (única excepción: el <circle> del anillo de
+   progreso con stroke-dashoffset). Sin filtros, sombras ni width/height
+   animados. Visible solo con <html class="intro-on"> (o .force en
+   /intro-test). Duraciones escaladas por var(--intro-speed, 1) y retardos
+   rebobinables con var(--intro-at). Total ≈ 4.8 s a 1×. */
 
 .introOverlay {
+  animation: introFailsafe 0.01s linear 6.5s forwards; /* Failsafe incondicional */
+  /* --intro-speed se hereda de <html> (script inline) o del contenedor de
+     /intro-test; aquí NO se declara para no tapar el valor heredado.
+     --intro-at: igual, hereda de <html> para el congelado determinista. */
+  --emblem-size: clamp(150px, 20vmin, 220px);
+  --emblem-r: calc(var(--emblem-size) / 2);
+  --orbit-gap: 56px;
+  --orbit-r: calc(var(--emblem-r) + var(--orbit-gap));
+  --node-size: clamp(26px, 3.4vmin, 38px);
+  --node-r: calc(var(--node-size) / 2);
+  --words-size: clamp(2rem, 6.5vw, 5rem);
+  --word-line: calc(var(--words-size) * 0.95);
+  /* Digital sube / Ingenio baja: hueco ≥ 28 px desde el borde externo del nodo */
+  --split-distance: calc(
+    var(--orbit-r) + var(--node-r) + 28px + var(--word-line) / 2
+  );
+  /* Conector: del borde del emblema al borde interior del nodo */
+  --connector-len: calc(var(--orbit-r) - var(--emblem-r) - var(--node-r));
+  --intro-bg: #0a0b1e;
+  --intro-text: #f5f6ff;
+  --intro-text-soft: #a8abd0;
+  --color-software: #2f7bff;
+  --color-arquitectura: #7c5cff;
+  --color-redes: #22d3ee;
+  --color-electronica: #19e3d0;
+  --color-formacion: #ffb454;
+  --node-icon-on-fill: #10112b;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: ease-in-out;
+  --ease-back: cubic-bezier(0.34, 1.4, 0.64, 1);
+
   position: fixed;
   inset: 0;
   z-index: 1000;
   display: none;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-bg);
-  clip-path: inset(0 0 0 0);
+  overflow: hidden;
+  /* Sin fondo propio: la capa .openingLayer tapa la página; el overlay es
+     solo el contenedor de la coreografía + Skip. */
+  background: transparent;
+  color: var(--intro-text);
 }
 
-:global(html.intro-on) .introOverlay {
-  display: flex;
-  animation:
-    introExit 0.55s var(--ease-in-out) 2.2s both,
-    introFailsafe 0.01s linear 4s forwards;
+[data-theme="light"] .introOverlay {
+  --intro-bg: #fafaff;
+  --intro-text: #14153a;
+  --intro-text-soft: #55587f;
+  --color-software: #2563eb;
+  --color-arquitectura: #7c3aed;
+  --color-redes: #0e7490;
+  --color-electronica: #0d9488;
+  --color-formacion: #b45309;
+  --node-icon-on-fill: #ffffff;
 }
 
-/* El scroll lo congela html.scroll-locked (lib/scrollLock.js); sin JS el
-   failsafe inline de <head> libera la clase a los 4.5 s o en pageshow/visibilitychange. */
-
-@keyframes introExit {
-  from {
-    clip-path: inset(0 0 0 0);
-    opacity: 1;
-  }
-  to {
-    clip-path: inset(0 0 100% 0);
-    opacity: 0;
-    visibility: hidden;
-  }
+/* Gating: <html class="intro-on"> en producción; .force en /intro-test */
+:global(html.intro-on) .introOverlay,
+.introOverlay.force {
+  display: block;
 }
 
-@keyframes introFailsafe {
-  to {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-  }
-}
-
-/* Sin movimiento: el intro nunca se le muestra */
 :global(html.motion-off) .introOverlay {
   display: none !important;
 }
 
-/* ===== Escena ===== */
+/* Congelado determinista: todas las animaciones (incluidos los pseudos de
+   relleno/halo/franja) pausadas en su instante; los retardos ya restan
+   var(--intro-at), así que el negativo sitúa cada animación en t. */
+:global(html[data-intro-at]) .introOverlay,
+:global(html[data-intro-at]) .introOverlay *,
+:global(html[data-intro-at]) .introOverlay *::before,
+:global(html[data-intro-at]) .introOverlay *::after {
+  animation-play-state: paused !important;
+}
 
-.introStage {
+/* ===== Capa de fondo con apertura circular (clip-path, compositor) ===== */
+.openingLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--intro-bg);
+  clip-path: circle(100% at 50% 50%);
+  will-change: clip-path;
+  animation: openingClip calc(0.9s / var(--intro-speed, 1)) var(--ease-in-out)
+    calc((3.8s - var(--intro-at, 0s)) / var(--intro-speed, 1)) both;
+}
+
+@keyframes openingClip {
+  from {
+    clip-path: circle(100% at 50% 50%);
+  }
+  to {
+    clip-path: circle(0px at 50% 50%);
+  }
+}
+
+/* Fallback sin soporte de clip-path interpolado: fundido simple */
+@supports not (clip-path: circle(10px at 50% 50%)) {
+  .openingLayer {
+    animation-name: openingFade;
+  }
+
+  @keyframes openingFade {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+}
+
+/* ===== Trazos OPCIONALES (intro.traces=true; 4 líneas rectas, sin filtros) ===== */
+.traces {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.trace {
+  fill: none;
+  stroke-width: 2;
+  stroke-opacity: 0.5;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: traceDraw calc(0.5s / var(--intro-speed, 1)) var(--ease-out)
+    calc((var(--d, 0.35s) - var(--intro-at, 0s)) / var(--intro-speed, 1)) both;
+}
+
+@keyframes traceDraw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ===== Escenario: todo comparte el centro del emblema (eje vertical) ===== */
+.stage {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Elementos que se desvanecen al abrir (órbita, barrido, conectores,
+   nodos, progreso). Emblema y palabras quedan para el FLIP. */
+.chrome {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  animation: chromeOut calc(0.35s / var(--intro-speed, 1)) var(--ease-in-out)
+    calc((3.8s - var(--intro-at, 0s)) / var(--intro-speed, 1)) both;
+}
+
+@keyframes chromeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+/* ===== Órbita punteada (1 px dashed, gira 24 s/vuelta a 1×) ===== */
+.orbit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--orbit-r) * 2);
+  height: calc(var(--orbit-r) * 2);
+  margin: calc(var(--orbit-r) * -1) 0 0 calc(var(--orbit-r) * -1);
+  border: 1px dashed color-mix(in srgb, var(--intro-text-soft) 70%, transparent);
+  border-radius: 50%;
+  opacity: 0;
+  animation:
+    orbitIn calc(0.5s / var(--intro-speed, 1)) var(--ease-in-out)
+      calc((1.2s - var(--intro-at, 0s)) / var(--intro-speed, 1)) both,
+    orbitSpin calc(24s / var(--intro-speed, 1)) linear
+      calc((1.2s - var(--intro-at, 0s)) / var(--intro-speed, 1)) infinite;
+}
+
+@keyframes orbitIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.35;
+  }
+}
+
+@keyframes orbitSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== Barrido de luz: conic-gradient enmascarado en corona de ~6 px ===== */
+.sweep {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--orbit-r) * 2);
+  height: calc(var(--orbit-r) * 2);
+  margin: calc(var(--orbit-r) * -1) 0 0 calc(var(--orbit-r) * -1);
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 288deg,
+    color-mix(in srgb, var(--color-redes) 75%, transparent) 340deg,
+    #e9fcff 359deg,
+    transparent 360deg
+  );
+  /* closest-side: el 100% del degradado es exactamente el radio de la órbita */
+  -webkit-mask-image: radial-gradient(
+    circle closest-side at center,
+    transparent calc(100% - 4px),
+    #000 calc(100% - 3px),
+    #000 calc(100% + 3px),
+    transparent calc(100% + 4px)
+  );
+  mask-image: radial-gradient(
+    circle closest-side at center,
+    transparent calc(100% - 4px),
+    #000 calc(100% - 3px),
+    #000 calc(100% + 3px),
+    transparent calc(100% + 4px)
+  );
+  opacity: 0;
+  animation: sweepTurn calc(1.2s / var(--intro-speed, 1)) linear
+    calc((2s - var(--intro-at, 0s)) / var(--intro-speed, 1)) both;
+}
+
+@keyframes sweepTurn {
+  0% {
+    transform: rotate(0deg);
+    opacity: 0;
+  }
+  4% {
+    opacity: 0.9;
+  }
+  92% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* ===== Conectores: 1 px, scaleY 0→1 desde el borde del emblema ===== */
+.connectorWrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  transform: rotate(var(--a));
+}
+
+.connector {
+  position: absolute;
+  left: -0.5px;
+  bottom: var(--emblem-r);
+  width: 1px;
+  height: var(--connector-len);
+  background: var(--node-c);
+  transform-origin: 50% 100%;
+  opacity: 0;
+  transform: scaleY(0);
+  animation: connectorIn calc(0.45s / var(--intro-speed, 1)) var(--ease-out)
+    calc((1.2s + var(--i, 0) * 0.05s - var(--intro-at, 0s)) / var(--intro-speed, 1))
+    both;
+}
+
+@keyframes connectorIn {
+  from {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  to {
+    opacity: 0.4;
+    transform: scaleY(1);
+  }
+}
+
+/* ===== Nodos: contorno → relleno 0.9 al pasar el barrido ===== */
+/* Los nodos aparecen al empezar la carga (2.0 s), cuando las palabras ya
+   terminaron su separación (2.0 s): nunca coinciden con ellas. */
+.node {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--node-size);
+  height: var(--node-size);
+  margin: calc(var(--node-r) * -1) 0 0 calc(var(--node-r) * -1);
+  transform: rotate(var(--a)) translateY(calc(var(--orbit-r) * -1))
+    rotate(calc(-1 * var(--a)));
+  opacity: 0;
+  animation: nodeAppear calc(0.3s / var(--intro-speed, 1)) var(--ease-in-out)
+    calc((2s + var(--i, 0) * 0.05s - var(--intro-at, 0s)) / var(--intro-speed, 1))
+    both;
+}
+
+@keyframes nodeAppear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Disco del nodo: el "pop" 0.85→1.15→1 se aplica aquí (forwards, sin
+   backwards: antes de encenderse conserva scale(0.85) del estilo base). */
+.nodeCore {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1.5px solid var(--node-c);
+  background: transparent;
+  color: var(--node-icon-on-fill);
+  transform: scale(0.85);
+  animation: nodePop calc(0.4s / var(--intro-speed, 1)) var(--ease-out)
+    calc((2s + var(--i, 0) * 0.15s - var(--intro-at, 0s)) / var(--intro-speed, 1))
+    forwards;
+}
+
+@keyframes nodePop {
+  0% {
+    transform: scale(0.85);
+  }
+  55% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Relleno del color del área (opacidad 0.9) + borde del mismo color */
+.nodeCore::before {
+  content: "";
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 50%;
+  background: var(--node-c);
+  opacity: 0;
+  animation: nodeFill calc(0.3s / var(--intro-speed, 1)) var(--ease-in-out)
+    calc((2s + var(--i, 0) * 0.15s - var(--intro-at, 0s)) / var(--intro-speed, 1))
+    forwards;
+}
+
+@keyframes nodeFill {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
+
+/* Halo suave del encendido: gradiente radial, solo opacidad/escala */
+.nodeCore::after {
+  content: "";
+  position: absolute;
+  inset: -70%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--node-c) 60%, transparent) 0%,
+    transparent 68%
+  );
+  opacity: 0;
+  transform: scale(0.7);
+  animation: nodeHalo calc(0.55s / var(--intro-speed, 1)) var(--ease-in-out)
+    calc((2s + var(--i, 0) * 0.15s - var(--intro-at, 0s)) / var(--intro-speed, 1))
+    forwards;
+}
+
+@keyframes nodeHalo {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  42% {
+    opacity: 0.55;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+.nodeIcon {
+  position: relative;
+  z-index: 1;
+  width: 55%;
+  height: 55%;
+  opacity: 0.15;
+  animation: nodeIconOn calc(0.3s / var(--intro-speed, 1)) var(--ease-in-out)
+    calc((2s + var(--i, 0) * 0.15s - var(--intro-at, 0s)) / var(--intro-speed, 1))
+    forwards;
+}
+
+@keyframes nodeIconOn {
+  from {
+    opacity: 0.15;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.nodeArea_software {
+  --node-c: var(--color-software);
+}
+
+.nodeArea_arquitectura {
+  --node-c: var(--color-arquitectura);
+}
+
+.nodeArea_redes {
+  --node-c: var(--color-redes);
+}
+
+.nodeArea_electronica {
+  --node-c: var(--color-electronica);
+}
+
+.nodeArea_formacion {
+  --node-c: var(--color-formacion);
+}
+
+/* ===== Anillo de progreso (ÚNICO <circle>, stroke-dashoffset) =====
+   Rodea el emblema a ~8 px de su borde (SVG = emblema + 24 px, r=48). */
+.chargeSvg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--emblem-size) + 24px);
+  height: calc(var(--emblem-size) + 24px);
+  margin: calc((var(--emblem-size) + 24px) / -2) 0 0
+    calc((var(--emblem-size) + 24px) / -2);
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.chargeRing {
+  fill: none;
+  stroke: url(#introChargeGrad);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: chargeSweep calc(1.2s / var(--intro-speed, 1)) linear
+    calc((2s - var(--intro-at, 0s)) / var(--intro-speed, 1)) forwards;
+}
+
+@keyframes chargeSweep {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ===== Emblema oficial: sale del centro (scale 0.5→1) y pulsa al cargar ===== */
+.emblem {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  width: var(--emblem-size);
+  height: var(--emblem-size);
+  margin: calc(var(--emblem-size) / -2) 0 0 calc(var(--emblem-size) / -2);
+  border-radius: 50%;
+  opacity: 0;
+  transform-origin: center center;
+  will-change: transform, opacity;
+  animation:
+    emblemIn calc(0.6s / var(--intro-speed, 1)) var(--ease-back)
+      calc((2s - var(--intro-at, 0s)) / var(--intro-speed, 1)) both,
+    emblemPulse calc(0.45s / var(--intro-speed, 1)) var(--ease-out)
+      calc((3.2s - var(--intro-at, 0s)) / var(--intro-speed, 1)) forwards;
+}
+
+@keyframes emblemIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes emblemPulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  45% {
+    opacity: 0.94;
+    transform: scale(1.045);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Halo del pulso: radial-gradient detrás del emblema, opacidad/escala */
+.emblem::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -18%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-redes) 45%, transparent) 0%,
+    transparent 68%
+  );
+  opacity: 0;
+  transform: scale(0.85);
+  pointer-events: none;
+  animation: emblemHalo calc(0.55s / var(--intro-speed, 1)) var(--ease-in-out)
+    calc((3.18s - var(--intro-at, 0s)) / var(--intro-speed, 1)) forwards;
+}
+
+@keyframes emblemHalo {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  40% {
+    opacity: 0.5;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.14);
+  }
+}
+
+.emblemImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--intro-text-soft) 45%, transparent);
+}
+
+/* ===== Palabras: columna centrada en el eje del emblema ===== */
+.words {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-6);
-}
-
-/* Dos idiomas posibles: solo uno visible */
-.welcome {
-  margin: 0;
+  transform: translate(-50%, -50%);
   font-family: var(--font-display);
-  font-size: clamp(1.125rem, 2.6vw, 1.5rem);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--color-text);
+  font-size: var(--words-size);
+  font-weight: 680;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
   text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.word {
+  position: relative;
+  display: block;
   opacity: 0;
-  animation: welcomeIn 0.45s var(--ease-out) 1.7s both;
+  color: var(--intro-text);
+  will-change: transform, opacity;
 }
 
-.welcomeEs {
-  display: inline;
-}
-
-.welcomeEn {
-  display: none;
-}
-
-:global(html[lang="en"]) .welcomeEn {
-  display: inline;
-}
-:global(html[lang="en"]) .welcomeEs {
-  display: none;
-}
-
-@keyframes welcomeIn {
+@keyframes wordIn {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(0.28em);
   }
   to {
     opacity: 1;
@@ -100,24 +622,164 @@
   }
 }
 
-/* Botón Saltar */
+/* Separación vertical: Digital sube y Ingenio baja (--sign-* según
+   intro.splitOrder). Segundo transform de la lista, fill "forwards". */
+.wordIngenio {
+  animation:
+    wordIn calc(0.6s / var(--intro-speed, 1)) var(--ease-out)
+      calc((0s - var(--intro-at, 0s)) / var(--intro-speed, 1)) both,
+    wordSplitIngenio calc(0.8s / var(--intro-speed, 1)) var(--ease-out)
+      calc((1.2s - var(--intro-at, 0s)) / var(--intro-speed, 1)) forwards;
+}
+
+.wordDigital {
+  animation:
+    wordIn calc(0.6s / var(--intro-speed, 1)) var(--ease-out)
+      calc((0s - var(--intro-at, 0s)) / var(--intro-speed, 1)) both,
+    wordSplitDigital calc(0.8s / var(--intro-speed, 1)) var(--ease-out)
+      calc((1.2s - var(--intro-at, 0s)) / var(--intro-speed, 1)) forwards;
+}
+
+@keyframes wordSplitIngenio {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(var(--split-distance) * var(--sign-ingenio, 1)));
+  }
+}
+
+@keyframes wordSplitDigital {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(var(--split-distance) * var(--sign-digital, -1)));
+  }
+}
+
+/* ===== Franja de luz (gradiente cian→azul→violeta, background-clip:text) ===== */
+.word::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 26%,
+    #22d3ee 38%,
+    #2f7bff 48%,
+    #7c5cff 58%,
+    transparent 74%,
+    transparent 100%
+  );
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  background-position: 120% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  pointer-events: none;
+  opacity: 0;
+  animation: streak calc(0.8s / var(--intro-speed, 1)) var(--ease-in-out)
+    calc((0.05s - var(--intro-at, 0s)) / var(--intro-speed, 1)) both;
+}
+
+@keyframes streak {
+  0% {
+    background-position: 120% 50%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    background-position: -60% 50%;
+    opacity: 0;
+  }
+}
+
+@supports not (background-clip: text) {
+  .word::after {
+    display: none;
+  }
+}
+
+/* ===== Fallback sin WAAPI: fundido simple (conserva la separación) ===== */
+:global(html.intro-flip-fallback) .words {
+  animation: wordsFlipFade calc(0.5s / var(--intro-speed, 1)) var(--ease-in-out)
+    calc((3.8s - var(--intro-at, 0s)) / var(--intro-speed, 1)) both;
+}
+
+@keyframes wordsFlipFade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+:global(html.intro-flip-fallback) .emblem {
+  animation: emblemIn calc(0.6s / var(--intro-speed, 1)) var(--ease-back)
+      calc((2s - var(--intro-at, 0s)) / var(--intro-speed, 1)) both,
+    emblemPulse calc(0.45s / var(--intro-speed, 1)) var(--ease-out)
+      calc((3.2s - var(--intro-at, 0s)) / var(--intro-speed, 1)) forwards,
+    emblemFlipFade calc(0.5s / var(--intro-speed, 1)) var(--ease-in-out)
+      calc((3.8s - var(--intro-at, 0s)) / var(--intro-speed, 1)) forwards;
+}
+
+@keyframes emblemFlipFade {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+}
+
+/* ===== Botón Saltar ===== */
 .skip {
   position: absolute;
   top: var(--space-4);
   right: var(--space-4);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
   min-height: 44px;
-  min-width: 44px;
   padding: var(--space-2) var(--space-4);
   font-family: var(--font-mono);
   font-size: var(--fs-mono);
-  color: var(--color-text-secondary);
+  color: var(--intro-text-soft);
   background: transparent;
-  border: 1px solid var(--color-border-strong);
+  border: 1px solid var(--intro-text-soft);
   border-radius: var(--radius-sm);
   cursor: pointer;
 }
 
 .skip:hover {
-  color: var(--color-text);
-  border-color: var(--color-blue);
+  color: var(--intro-text);
+  border-color: var(--color-redes);
+}
+
+/* ===== Móvil (<640 px): emblema 150, órbita +40, nodos 26 ===== */
+@media (max-width: 640px) {
+  .introOverlay {
+    --emblem-size: 150px;
+    --orbit-gap: 40px;
+    --node-size: 26px;
+    --words-size: clamp(1.75rem, 9vw, 2.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .introOverlay,
+  .introOverlay * {
+    animation: none !important;
+  }
 }

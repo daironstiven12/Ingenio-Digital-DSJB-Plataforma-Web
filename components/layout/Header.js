@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { Menu, X, ArrowRight, Sun, Moon, Search } from "lucide-react";
 import { site } from "@/data/site";
@@ -35,6 +35,9 @@ function subscribeTheme(callback) {
 const getThemeSnapshot = () =>
   document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
 const getServerThemeSnapshot = () => "dark";
+
+// Antes del primer pintado en cliente; en SSR cae a useEffect.
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 function LangToggle({ lang, setLang, groupLabel }) {
   return (
@@ -149,9 +152,27 @@ export default function Header() {
     [navItems],
   );
 
+  // SSR = TOP. Antes del primer pintado, si la página carga con scroll
+  // restaurado (>24px) se decide SCROLLED sincrónicamente y se retira la clase
+  // pre-pintada scrolled-early (el marco ya está en el estado correcto).
+  useIsoLayoutEffect(() => {
+    setScrolled(window.scrollY > 24);
+    document.documentElement.classList.remove("scrolled-early");
+  }, []);
+
+  // Histéresis: activa pasados 24px, desactiva por debajo de 8px; rAF + pasivo.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const y = window.scrollY;
+      setScrolled((prev) => (prev ? y > 8 : y > 24));
+    };
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(update);
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -268,7 +289,7 @@ export default function Header() {
   return (
     <header ref={headerRef} className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
       <CommandPalette />
-      <div className={styles.inner}>
+      <div className={styles.bar}>
         <a href="#inicio" className={styles.brand} aria-label={t("nav.homeLabel")}>
           <Image
             src={site.logo ?? "/logo.jpeg"}
@@ -277,9 +298,14 @@ export default function Header() {
             height={64}
             sizes="36px"
             className={styles.brandLogo}
+            data-intro-target="emblem"
             priority
           />
-          <span className={styles.brandName}>Ingenio&nbsp;Digital</span>
+          <span className={styles.brandName}>
+            <span className={styles.brandWord} data-intro-target="ingenio">Ingenio</span>
+            {" "}
+            <span className={styles.brandWord} data-intro-target="digital">Digital</span>
+          </span>
         </a>
 
         {/* Escritorio: enlaces centrados */}

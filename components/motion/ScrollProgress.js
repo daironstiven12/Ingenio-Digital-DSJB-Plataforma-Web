@@ -22,7 +22,7 @@ export default function ScrollProgress() {
 
     // Puntero al listener, registrado antes de su primer uso y disponible en el cleanup
     const applyOpacity = () => {
-      node.style.opacity = window.scrollY >= 8 ? "0.7" : "0";
+      node.style.opacity = window.scrollY >= 8 ? "0.6" : "0"; // ≤ 0.6 y oculta < 8 px
     };
     applyOpacity();
     window.addEventListener("scroll", applyOpacity, { passive: true });

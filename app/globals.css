@@ -301,6 +301,34 @@ html.js .reveal-pending {
   opacity: 0;
 }
 
+/* Al abrir la apertura (3.8 s) el héroe entra YA: no depende de intro-done */
+html.intro-opening .reveal-pending,
+html.intro-done .reveal-pending {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Entrada del héroe al inicio de la apertura (0.55 s; el bloque orbital
+   llega 0.14 s después). Sin JS/intro, el héroe es visible por defecto. */
+html.intro-on .heroReveal {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+html.intro-opening .heroReveal,
+html.intro-done .heroReveal {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.06s,
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.06s;
+}
+
+html.intro-opening .heroRevealDelay,
+html.intro-done .heroRevealDelay {
+  transition-delay: 0.2s;
+}
+
 /* ===== Bandas tonales ===== */
 
 .band {
@@ -334,6 +362,13 @@ html.js .reveal-pending {
 .band-cta {
   background-color: var(--color-cta-bg);
   border-top: 1px solid var(--color-cta-border);
+}
+
+/* ===== Ancho del contenido y páginas sin hero =====
+   El header es FIXED (no ocupa flujo): el main necesita la separación
+   superior; la home la compensa con margin-top negativo en .hero. */
+#contenido {
+  padding-top: var(--header-h);
 }
 
 /* ===== Utilidades ===== */
@@ -508,6 +543,10 @@ html.js .reveal-pending {
 
 /* ===== Barra de progreso de lectura ===== */
 
+/* Barra de progreso de lectura (2 px, degradado de marca).
+   Pegadísima al borde SUPERIOR de la ventana (fixed top:0). Oculta por
+   completo con scrollY < 8: sin valor SSR distinto de scaleX(0)/opacity 0.
+   Visible solo tras hidratar y con scroll real (opacity ≤ 0.6). */
 .scroll-progress {
   position: fixed;
   top: 0;

@@ -10,6 +10,7 @@ import OrbitSystem from "@/components/ui/OrbitSystem";
 import HeroVideo from "./HeroVideo";
 import useMagnetic from "@/lib/useMagnetic";
 import useTheme from "@/lib/useTheme";
+import { waitForIntroOpening } from "@/lib/introWait";
 import styles from "./Hero.module.css";
 
 // La escena 3D solo para tema claro; se importa de forma diferida
@@ -27,10 +28,22 @@ export default function Hero() {
   const theme = useTheme();
   const isDark = theme === "dark";
   const [hintVisible, setHintVisible] = useState(true);
+  const [graphReady, setGraphReady] = useState(false);
   const magneticRef = useMagnetic(6);
   const sectionRef = useRef(null);
   const innerRef = useRef(null);
   const ringsRef = useRef(null);
+
+  // La escena 3D (three.js) espera a la apertura del intro +150 ms
+  useEffect(() => {
+    let alive = true;
+    waitForIntroOpening(150).then(() => {
+      if (alive) setGraphReady(true);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   // Ocultar el indicador de scroll al salir del hero
   useEffect(() => {
@@ -55,6 +68,9 @@ export default function Hero() {
 
     (async () => {
       try {
+        // ScrollTriggers + parallax: esperan a la apertura del intro (+150 ms)
+        await waitForIntroOpening(150);
+        if (cancelled) return;
         const { gsap } = await import("gsap");
         const { ScrollTrigger } = await import("gsap/ScrollTrigger");
         if (cancelled) return;
@@ -154,23 +170,23 @@ export default function Hero() {
           <HeroVideo />
           <div className="hero-veil" aria-hidden="true" />
         </>
-      ) : (
+      ) : graphReady ? (
         <HeroGraph />
-      )}
+      ) : null}
       {!isDark ? <div className={styles.veilLight} aria-hidden="true" /> : null}
       <div className={styles.glowBlue} aria-hidden="true" />
       <div className={styles.glowViolet} aria-hidden="true" />
 
       <div ref={innerRef} className={`container ${styles.inner}`}>
         <div className={styles.copy}>
-          <span className={styles.accentLine} aria-hidden="true" />
-          <p className={`eyebrow ${styles.eyebrow}`}>{t("hero.eyebrow")}</p>
-          <h1 id="hero-titulo" className={styles.title}>
+          <span className={`${styles.accentLine} heroReveal`} aria-hidden="true" />
+          <p className={`eyebrow ${styles.eyebrow} heroReveal`}>{t("hero.eyebrow")}</p>
+          <h1 id="hero-titulo" className={`${styles.title} heroReveal`}>
             {t("hero.titleBefore")}
             <span className={styles.titleKeyword}>{t("hero.titleKeyword")}</span>
           </h1>
-          <p className={styles.lead}>{t("hero.lead")}</p>
-          <div className={styles.actions}>
+          <p className={`${styles.lead} heroReveal`}>{t("hero.lead")}</p>
+          <div className={`${styles.actions} heroReveal`}>
             <a ref={magneticRef} href="#proyectos" className="btn-primary">
               {t("hero.ctaPrimary")}
               <ArrowRight size={18} aria-hidden="true" />
@@ -181,7 +197,9 @@ export default function Hero() {
           </div>
         </div>
 
-        <OrbitSystem mode="hero" ringsRef={ringsRef} />
+        <div className="heroReveal heroRevealDelay">
+          <OrbitSystem mode="hero" ringsRef={ringsRef} />
+        </div>
       </div>
 
       {/* Indicador de scroll: enlace accesible; se oculta al hacer scroll */}

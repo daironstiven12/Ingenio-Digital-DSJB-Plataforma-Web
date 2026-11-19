@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Mail, MessageCircle } from "lucide-react";
 import LinkedinIcon from "@/components/ui/LinkedinIcon";
 import GithubIcon from "@/components/ui/GithubIcon";
@@ -206,7 +207,12 @@ export default function Footer() {
       </div>
 
       <div className={`container ${styles.bottom}`}>
-        <p>© {year} Ingenio Digital DSJB</p>
+        <p>
+          © {year} Ingenio Digital DSJB ·{" "}
+          <Link href="/privacidad" className={styles.privacyLink}>
+            {t("footer.privacy")}
+          </Link>
+        </p>
         <p className={styles.note}>{t("footer.rights")}</p>
       </div>
     </footer>
